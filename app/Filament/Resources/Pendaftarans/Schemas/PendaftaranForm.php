@@ -14,7 +14,7 @@ class PendaftaranForm
             ComponentsGrid::make(2)->schema([
                 Select::make('pasien_id')
                     ->label('Nama Pasien')
-                    ->relationship('pasien', 'nama_pasien') // ✅ sesuai dengan relasi di model & kolom di tabel pasien
+                    ->relationship('pasien', 'nama_pasien') //
                     ->searchable()
                     ->preload() //
                     ->required(),
@@ -42,12 +42,34 @@ class PendaftaranForm
                     ->searchable(fn() => auth()->user()?->role?->name !== 'petugas')
                     ->preload(),
 
+                Select::make('jadwal_id')
+                    ->label('Jadwal')
+                    ->options(function () {
+                        $user = auth()->user();
 
-                DateTimePicker::make('tanggal_daftar')
-                    ->label('Tanggal Daftar')
-                    ->native(false)
-                    ->default(now())
-                    ->required(),
+                        $q = \App\Models\Jadwal::query()
+                            ->with('user') // pastikan relasi user() ada di model Jadwal
+                            ->orderBy('hari')
+                            ->orderBy('jam_mulai');
+
+                        // Dokter hanya melihat jadwal miliknya
+                        if ($user?->role?->name === 'dokter') {
+                            $q->where('user_id', $user->id);
+                        }
+
+                        return $q->get()->mapWithKeys(function ($j) {
+                            $nama    = $j->user->name ?? '-';
+                            $hari    = ucfirst($j->hari);
+                            $mulai   = (string) $j->jam_mulai;
+                            $selesai = (string) $j->jam_selesai;
+                            $ket     = $j->keterangan ? " | {$j->keterangan}" : '';
+                            return [$j->id => "{$nama} | {$hari} {$mulai}-{$selesai}{$ket}"];
+                        })->toArray();
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->rule('exists:jadwals,id'),
 
                 TextInput::make('nomor_antrian')
                     ->label('Nomor Antrian')

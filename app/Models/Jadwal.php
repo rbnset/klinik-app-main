@@ -10,7 +10,7 @@ class Jadwal extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'hari', 'jam_mulai', 'jam_selesai', 'keterangan'];
+    protected $fillable = ['user_id', 'hari', 'jam_mulai', 'jam_selesai', 'keterangan', 'sesi'];
 
     public function user(): BelongsTo
     {

@@ -16,7 +16,7 @@ class Pendaftaran extends Model
         'nomor_antrian',
         'pasien_id',
         'user_id',
-        'tanggal_daftar',
+        'jadwal_id',
         'poli_tujuan',
         'tenaga_medis_tujuan',
         'jenis_pelayanan',
@@ -27,14 +27,19 @@ class Pendaftaran extends Model
 
     public function pasien()
 
-{
-    return $this->belongsTo(Pasien::class, 'pasien_id');
-}
+    {
+        return $this->belongsTo(Pasien::class, 'pasien_id');
+    }
 
-public function user()
-{
-    return $this->belongsTo(User::class, 'user_id');
-}
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function jadwal()
+    {
+        return $this->belongsTo(Jadwal::class, 'jadwal_id');
+    }
 
 
     public function pemeriksaans(): HasMany

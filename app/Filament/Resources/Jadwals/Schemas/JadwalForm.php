@@ -18,19 +18,23 @@ class JadwalForm
                 Select::make('user_id')
                     ->label('Tenaga Medis')
                     ->relationship('user', 'name')
-                    ->searchable()->preload()
-                    ->required(),
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->rule('exists:users,id'),
 
                 Select::make('hari')
+                    ->label('Hari')
                     ->options([
-                        'senin' => 'Senin',
+                        'senin'  => 'Senin',
                         'selasa' => 'Selasa',
-                        'rabu' => 'Rabu',
-                        'kamis' => 'Kamis',
-                        'jumat' => 'Jumat',
-                        'sabtu' => 'Sabtu',
+                        'rabu'   => 'Rabu',
+                        'kamis'  => 'Kamis',
+                        'jumat'  => 'Jumat',
+                        'sabtu'  => 'Sabtu',
                         'minggu' => 'Minggu',
-                    ])->required(),
+                    ])
+                    ->required(),
 
                 TimePicker::make('jam_mulai')
                     ->label('Jam Mulai')
@@ -39,8 +43,22 @@ class JadwalForm
                 TimePicker::make('jam_selesai')
                     ->label('Jam Selesai')
                     ->required(),
+
+                // sesuai enum di migration: ['Ada', 'Tidak Ada']
+                Select::make('keterangan')
+                    ->label('Keterangan')
+                    ->options([
+                        'Ada'       => 'Ada',
+                        'Tidak Ada' => 'Tidak Ada',
+                    ])
+                    ->required(),
+
+                // kolom nullable, panjang maksimal 8
+                TextInput::make('sesi')
+                    ->label('Sesi')
+                    ->maxLength(8)
+                    ->nullable(),
             ]),
-            TextInput::make('keterangan')->label('Keterangan')->maxLength(150)->columnSpanFull(),
         ]);
     }
 }

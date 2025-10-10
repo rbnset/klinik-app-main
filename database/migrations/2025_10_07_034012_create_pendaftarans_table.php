@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('pendaftarans', function (Blueprint $table) {
+        Schema::create('pendaftarans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pasien_id')->constrained('pasiens');
             $table->foreignId('user_id')->constrained('users');
-            $table->dateTime('tanggal_daftar');
+            $table->foreignId('jadwal_id')->constrained('jadwals');
             $table->string('nomor_antrian', 20)->index();
             $table->enum('poli_tujuan', ['Poli Umum', 'Poli Kandungan']);
             $table->enum('tenaga_medis_tujuan', ['Dokter', 'Bidan'])->default('Dokter');
