@@ -31,7 +31,9 @@ class AllAccountsSeeder extends Seeder
         $users = [
             ['name' => 'Admin',     'email' => 'admin@demo.test',   'role' => 'admin'],
             ['name' => 'Dr. A',     'email' => 'dokter1@demo.test', 'role' => 'dokter'],
+            ['name' => 'Dr. B',     'email' => 'dokter2@demo.test', 'role' => 'dokter'],
             ['name' => 'Bidan A',   'email' => 'bidan1@demo.test',  'role' => 'bidan'],
+            ['name' => 'Bidan B',   'email' => 'bidan2@demo.test',  'role' => 'bidan'],
             ['name' => 'Petugas A', 'email' => 'petugas1@demo.test', 'role' => 'petugas'],
             ['name' => 'Petugas B', 'email' => 'petugas2@demo.test', 'role' => 'petugas'],
             ['name' => 'Pasien X',  'email' => 'pasien1@demo.test', 'role' => 'pasien'],
