@@ -12,47 +12,52 @@ class PendaftaranForm
     {
         return $schema->components([
             ComponentsGrid::make(2)->schema([
+
+                // 🔹 Nama Pasien
                 Select::make('pasien_id')
                     ->label('Nama Pasien')
-                    ->relationship('pasien', 'nama_pasien') //
+                    ->relationship('pasien', 'nama_pasien')
                     ->searchable()
-                    ->preload() //
+                    ->preload()
                     ->required(),
 
+                // 🔹 Nama Petugas (otomatis terisi kalau login sebagai petugas)
                 Select::make('user_id')
                     ->label('Nama Petugas')
                     ->options(function () {
-                        // Jika role = petugas, hanya opsi dirinya
                         if (auth()->user()?->role?->name === 'petugas') {
                             return [auth()->id() => auth()->user()?->name];
                         }
 
-                        // Selain petugas (admin, dsb) bisa pilih petugas mana saja
                         return \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'petugas'))
                             ->orderBy('name')
                             ->pluck('name', 'id')
                             ->toArray();
                     })
                     ->default(fn() => auth()->user()?->role?->name === 'petugas' ? auth()->id() : null)
-                    ->disabled(fn() => auth()->user()?->role?->name === 'petugas') // dikunci kalau petugas
-                    ->dehydrated(true)   // tetap disimpan ke DB meski disabled
+                    ->afterStateHydrated(function ($set) {
+                        if (auth()->user()?->role?->name === 'petugas') {
+                            $set('user_id', auth()->id()); // tampil langsung di form
+                        }
+                    })
+                    ->disabled(fn() => auth()->user()?->role?->name === 'petugas') // tidak bisa diubah oleh petugas
+                    ->dehydrated(true)
                     ->required()
                     ->rule('exists:users,id')
-                    // optional: matikan search saat petugas (biar UI simple)
                     ->searchable(fn() => auth()->user()?->role?->name !== 'petugas')
                     ->preload(),
 
+                // 🔹 Jadwal
                 Select::make('jadwal_id')
                     ->label('Jadwal')
                     ->options(function () {
                         $user = auth()->user();
 
                         $q = \App\Models\Jadwal::query()
-                            ->with('user') // pastikan relasi user() ada di model Jadwal
+                            ->with('user')
                             ->orderBy('hari')
                             ->orderBy('jam_mulai');
 
-                        // Dokter hanya melihat jadwal miliknya
                         if ($user?->role?->name === 'dokter') {
                             $q->where('user_id', $user->id);
                         }
@@ -71,26 +76,40 @@ class PendaftaranForm
                     ->required()
                     ->rule('exists:jadwals,id'),
 
+                // 🔹 Nomor Antrian
                 TextInput::make('nomor_antrian')
                     ->label('Nomor Antrian')
                     ->required(),
 
+                // 🔹 Poli Tujuan dengan logika otomatis ubah tenaga medis
                 Select::make('poli_tujuan')
                     ->label('Poli Tujuan')
                     ->options([
                         'Poli Umum' => 'Poli Umum',
                         'Poli Kandungan' => 'Poli Kandungan',
                     ])
+                    ->reactive()
+                    ->afterStateUpdated(function (callable $set, $state) {
+                        if ($state === 'Poli Kandungan') {
+                            $set('tenaga_medis_tujuan', 'Bidan');
+                        } else {
+                            $set('tenaga_medis_tujuan', 'Dokter');
+                        }
+                    })
                     ->required(),
 
+                // 🔹 Tenaga Medis Tujuan (otomatis terisi dari pilihan Poli)
                 Select::make('tenaga_medis_tujuan')
                     ->label('Tenaga Medis')
                     ->options([
                         'Dokter' => 'Dokter',
                         'Bidan' => 'Bidan',
                     ])
+                    ->disabled()
+                    ->dehydrated(true)
                     ->required(),
 
+                // 🔹 Jenis Pelayanan
                 Select::make('jenis_pelayanan')
                     ->label('Jenis Pelayanan')
                     ->options([
@@ -100,6 +119,7 @@ class PendaftaranForm
                     ])
                     ->required(),
 
+                // 🔹 Status
                 Select::make('status')
                     ->label('Status')
                     ->options([
@@ -112,10 +132,12 @@ class PendaftaranForm
                     ->required(),
             ]),
 
+            // 🔹 Keluhan
             Textarea::make('keluhan')
                 ->label('Keluhan')
                 ->columnSpanFull(),
 
+            // 🔹 Catatan
             Textarea::make('catatan')
                 ->label('Catatan')
                 ->columnSpanFull(),
