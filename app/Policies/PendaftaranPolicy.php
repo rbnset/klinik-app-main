@@ -9,38 +9,74 @@ class PendaftaranPolicy
 {
     use HandlesRoles;
 
+    /**
+     * Siapa yang boleh melihat semua daftar pendaftaran
+     */
     public function viewAny(User $user): bool
     {
-        // petugas bisa; pasien juga bisa (nanti di-scope miliknya)
-        return $this->is($user, ['petugas', 'pasien']);
+        // semua role boleh melihat, tapi nanti dibatasi scope query
+        return $this->is($user, ['petugas', 'dokter', 'bidan', 'pasien', 'admin']);
     }
 
-    public function view(User $user, Pendaftaran $p): bool
+    /**
+     * Siapa yang boleh melihat satu record pendaftaran
+     */
+    public function view(User $user, Pendaftaran $pendaftaran): bool
     {
-        if ($this->is($user, ['petugas'])) return true;
+        if ($this->is($user, ['petugas', 'admin'])) return true;
 
-        if ($user->hasRole('pasien')) {
-            return $p->pasien_id === optional($user->pasien)->id;
+        if ($user->hasRole('dokter')) {
+            return strtolower($pendaftaran->poli_tujuan) === 'poli umum';
         }
 
-        return $user->hasRole('admin');
+        if ($user->hasRole('bidan')) {
+            return strtolower($pendaftaran->poli_tujuan) === 'poli kandungan';
+        }
+
+        if ($user->hasRole('pasien')) {
+            return $pendaftaran->pasien_id === optional($user->pasien)->id;
+        }
+
+        return false;
     }
 
+    /**
+     * Siapa yang boleh membuat pendaftaran
+     */
     public function create(User $user): bool
     {
-        // pasien boleh daftar sendiri, petugas juga boleh
-        return $this->is($user, ['petugas', 'pasien']);
+        // pasien boleh daftar sendiri, petugas dan admin juga
+        return $this->is($user, ['petugas', 'pasien', 'admin']);
     }
 
-    public function update(User $user, Pendaftaran $p): bool
+    /**
+     * Siapa yang boleh mengedit pendaftaran
+     */
+    public function update(User $user, Pendaftaran $pendaftaran): bool
     {
-        // default: hanya petugas
-        return $this->is($user, ['petugas']);
+        if ($this->is($user, ['petugas', 'admin'])) return true;
+
+        if ($user->hasRole('dokter')) {
+            return strtolower($pendaftaran->poli_tujuan) === 'poli umum';
+        }
+
+        if ($user->hasRole('bidan')) {
+            return strtolower($pendaftaran->poli_tujuan) === 'poli kandungan';
+        }
+
+        if ($user->hasRole('pasien')) {
+            return $pendaftaran->pasien_id === optional($user->pasien)->id;
+        }
+
+        return false;
     }
 
-    public function delete(User $user, Pendaftaran $p): bool
+    /**
+     * Siapa yang boleh menghapus pendaftaran
+     */
+    public function delete(User $user, Pendaftaran $pendaftaran): bool
     {
-        // default: hanya petugas
-        return $this->is($user, ['petugas']);
+        // hanya petugas dan admin yang boleh hapus
+        return $this->is($user, ['petugas', 'admin']);
     }
 }

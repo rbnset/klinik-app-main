@@ -76,11 +76,6 @@ class PendaftaranForm
                     ->required()
                     ->rule('exists:jadwals,id'),
 
-                // 🔹 Nomor Antrian
-                TextInput::make('nomor_antrian')
-                    ->label('Nomor Antrian')
-                    ->required(),
-
                 // 🔹 Poli Tujuan dengan logika otomatis ubah tenaga medis
                 Select::make('poli_tujuan')
                     ->label('Poli Tujuan')

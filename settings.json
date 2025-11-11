@@ -1,0 +1,32 @@
+{
+    // Gunakan Prettier sebagai default formatter
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+    // Format otomatis saat menyimpan file
+    "editor.formatOnSave": true,
+
+    // Aktifkan auto save ketika berhenti mengetik (opsional bisa ubah jadi "onWindowChange")
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000, // 1 detik setelah berhenti mengetik
+
+    // Tentukan Prettier untuk tipe file tertentu agar tidak bentrok
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[php]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[blade]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+
+    // (Opsional) Menonaktifkan format lain agar tidak bentrok
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false
+}

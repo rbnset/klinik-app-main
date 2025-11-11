@@ -11,6 +11,9 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use App\Models\Pendaftaran;
+use Illuminate\Support\Facades\Auth;
 
 class PasiensTable
 {
@@ -18,69 +21,47 @@ class PasiensTable
     {
         return $table
             ->columns([
-                TextColumn::make('nik')
-                    ->label('NIK')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('nama_pasien')
-                    ->label('Nama Pasien')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('tempat_lahir')
-                    ->label('Tempat Lahir')
-                    ->sortable(),
-
-                TextColumn::make('tanggal_lahir')
-                    ->label('Tanggal Lahir')
-                    ->date('d/m/Y')
-                    ->sortable(),
-
-                TextColumn::make('jenis_kelamin')
-                    ->label('Jenis Kelamin')
-                    ->sortable(),
-
-                TextColumn::make('alamat')
-                    ->label('Alamat')
-                    ->sortable(),
-
-                TextColumn::make('golongan_darah')
-                    ->label('Gol. Darah')
-                    ->sortable(),
-
-                TextColumn::make('agama')
-                    ->label('Agama')
-                    ->sortable(),
-
-                TextColumn::make('status_perkawinan')
-                    ->label('Status Perkawinan')
-                    ->sortable(),
-
-                TextColumn::make('no_telp')
-                    ->label('No. Telepon')
-                    ->sortable(),
-
-                TextColumn::make('pekerjaan')
-                    ->label('Pekerjaan')
-                    ->sortable(),
-
-                TextColumn::make('nama_penanggung_jawab')
-                    ->label('Nama Penanggung Jawab')
-                    ->sortable(),
-
-                TextColumn::make('no_telp_penanggung_jawab')
-                    ->label('Telp Penanggung Jawab')
-                    ->sortable(),
-
-                TextColumn::make('created_at')
-                    ->label('Dibuat Pada')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                TextColumn::make('nik')->label('NIK')->searchable()->sortable(),
+                TextColumn::make('nama_pasien')->label('Nama Pasien')->searchable()->sortable(),
+                TextColumn::make('tempat_lahir')->label('Tempat Lahir')->sortable(),
+                TextColumn::make('tanggal_lahir')->label('Tanggal Lahir')->date('d/m/Y')->sortable(),
+                TextColumn::make('jenis_kelamin')->label('Jenis Kelamin')->sortable(),
+                TextColumn::make('alamat')->label('Alamat')->sortable(),
+                TextColumn::make('golongan_darah')->label('Gol. Darah')->sortable(),
+                TextColumn::make('agama')->label('Agama')->sortable(),
+                TextColumn::make('status_perkawinan')->label('Status Perkawinan')->sortable(),
+                TextColumn::make('no_telp')->label('No. Telepon')->sortable(),
+                TextColumn::make('pekerjaan')->label('Pekerjaan')->sortable(),
+                TextColumn::make('nama_penanggung_jawab')->label('Nama Penanggung Jawab')->sortable(),
+                TextColumn::make('no_telp_penanggung_jawab')->label('Telp Penanggung Jawab')->sortable(),
+                TextColumn::make('created_at')->label('Dibuat Pada')->dateTime('d/m/Y H:i')->sortable(),
             ])
             ->filters([
                 TrashedFilter::make(),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = Auth::user();
+                $role = $user->role?->name;
+
+                if ($role === 'pasien') {
+                    // hanya pasien itu sendiri
+                    $query->where('id', optional($user->pasien)->id);
+                }
+
+                if ($role === 'dokter') {
+                    // pasien yang pernah daftar ke Poli Umum
+                    $pasienIds = Pendaftaran::where('poli_tujuan', 'Poli Umum')->pluck('pasien_id');
+                    $query->whereIn('id', $pasienIds);
+                }
+
+                if ($role === 'bidan') {
+                    // pasien yang pernah daftar ke Poli Kandungan
+                    $pasienIds = Pendaftaran::where('poli_tujuan', 'Poli Kandungan')->pluck('pasien_id');
+                    $query->whereIn('id', $pasienIds);
+                }
+
+                // petugas & admin → tidak ada filter (lihat semua)
+            })
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),

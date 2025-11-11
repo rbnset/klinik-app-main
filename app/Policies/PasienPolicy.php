@@ -3,41 +3,61 @@
 namespace App\Policies;
 
 use App\Models\{Pasien, User};
-use App\Policies\Concerns\HandlesRoles;
+use App\Models\Pendaftaran;
 
 class PasienPolicy
 {
-    use HandlesRoles;
-
     public function viewAny(User $user): bool
     {
-        // petugas/dokter/bidan melihat data pasien; pasien juga bisa (nanti di-scope)
-        return $this->is($user, ['petugas', 'dokter', 'bidan', 'pasien']);
+        // Semua role kecuali yang tidak dikenali bisa lihat daftar pasien (dengan filter di Table)
+        return in_array($user->role?->name, ['admin', 'petugas', 'dokter', 'bidan', 'pasien']);
     }
 
     public function view(User $user, Pasien $pasien): bool
     {
-        if ($this->is($user, ['petugas', 'dokter', 'bidan'])) return true;
+        $role = $user->role?->name;
 
-        if ($user->hasRole('pasien')) {
+        if (in_array($role, ['admin', 'petugas'])) {
+            return true;
+        }
+
+        // pasien hanya boleh melihat datanya sendiri
+        if ($role === 'pasien') {
             return $pasien->id === optional($user->pasien)->id;
         }
 
-        return $user->hasRole('admin');
+        // dokter hanya boleh lihat pasien yang pernah daftar ke Poli Umum
+        if ($role === 'dokter') {
+            return Pendaftaran::where('pasien_id', $pasien->id)
+                ->where('poli_tujuan', 'Poli Umum')
+                ->exists();
+        }
+
+        // bidan hanya boleh lihat pasien yang pernah daftar ke Poli Kandungan
+        if ($role === 'bidan') {
+            return Pendaftaran::where('pasien_id', $pasien->id)
+                ->where('poli_tujuan', 'Poli Kandungan')
+                ->exists();
+        }
+
+        return false;
     }
 
     public function create(User $user): bool
     {
-        // hanya petugas (opsional: admin juga dianggap lolos via trait)
-        return $this->is($user, ['petugas']);
+        return in_array($user->role?->name, ['petugas', 'admin']);
     }
 
     public function update(User $user, Pasien $pasien): bool
     {
-        if ($this->is($user, ['petugas'])) return true;
+        $role = $user->role?->name;
 
-        // pasien boleh update profilnya sendiri (opsional)
-        if ($user->hasRole('pasien')) {
+        if (in_array($role, ['admin', 'petugas'])) {
+            return true;
+        }
+
+        // pasien boleh update datanya sendiri
+        if ($role === 'pasien') {
             return $pasien->id === optional($user->pasien)->id;
         }
 
@@ -46,6 +66,6 @@ class PasienPolicy
 
     public function delete(User $user, Pasien $pasien): bool
     {
-        return $this->is($user, ['petugas']);
+        return in_array($user->role?->name, ['admin', 'petugas']);
     }
 }
