@@ -8,23 +8,41 @@ use Filament\Forms\Components\{
     Select,
     DateTimePicker,
     Textarea,
-    TextInput,
-    Repeater
+    TextInput
 };
-use Filament\Schemas\Components\Section as ComponentsSection;
-use Illuminate\Support\Carbon;
-use App\Models\Tindakan;
-use App\Models\Pemeriksaan;
 use Filament\Schemas\Components\Grid as ComponentsGrid;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
+use App\Models\Pasien;
+use App\Models\Pemeriksaan;
+use App\Models\Diagnosa;
 
 class RekamMedisForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $user = Auth::user();
+        $role = $user->role?->name ?? null; // dokter / bidan
+
         return $schema->components([
-             ComponentsGrid::make(3)->schema([
+            // ==============================
+            // Pilih Pasien, Pemeriksaan, Diagnosa
+            // ==============================
+            ComponentsGrid::make(3)->schema([
                 Select::make('pasien_id')
-                    ->relationship('pasien', 'nama_pasien')
+                    ->label('Pasien')
+                    ->options(function () use ($user, $role) {
+                        return Pasien::query()
+                            ->whereHas('diagnosa') // pasien harus sudah ada diagnosa
+                            ->whereHas('pendaftaran', function ($q) use ($role) {
+                                // filter sesuai role login
+                                $q->where('tenaga_medis_tujuan', ucfirst($role));
+                            })
+                            ->get()
+                            ->mapWithKeys(function ($pasien) {
+                                return [$pasien->id => $pasien->nama_pasien];
+                            });
+                    })
                     ->searchable()
                     ->preload()
                     ->required()
@@ -35,14 +53,13 @@ class RekamMedisForm
                     ->label('Pemeriksaan')
                     ->options(function (callable $get) {
                         $pid = $get('pasien_id');
-                        if (! $pid) {
+                        if (!$pid) {
                             return [];
                         }
 
                         return Pemeriksaan::query()
                             ->where('pasien_id', $pid)
                             ->latest('tanggal_periksa')
-                            ->limit(50)
                             ->get()
                             ->mapWithKeys(function ($rec) {
                                 $dt = $rec->tanggal_periksa
@@ -50,7 +67,7 @@ class RekamMedisForm
                                         ? $rec->tanggal_periksa->format('d/m/Y H:i')
                                         : Carbon::parse($rec->tanggal_periksa)->format('d/m/Y H:i'))
                                     : '-';
-                                return [$rec->getKey() => 'PM-' . $rec->getKey() . ' | ' . $dt];
+                                return [$rec->id => 'PM-' . $rec->id . ' | ' . $dt];
                             })
                             ->toArray();
                     })
@@ -62,13 +79,24 @@ class RekamMedisForm
                     ->rule('exists:pemeriksaans,id'),
 
                 Select::make('diagnosa_id')
-                    ->relationship('diagnosa', 'nama_diagnosa')
+                    ->label('Diagnosa')
+                    ->options(function (callable $get) {
+                        $pemeriksaanId = $get('pemeriksaan_id');
+                        if (!$pemeriksaanId) return [];
+
+                        return \App\Models\Diagnosa::where('pemeriksaan_id', $pemeriksaanId)
+                            ->pluck('nama_diagnosa', 'id')
+                            ->toArray();
+                    })
+                    ->required()
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
+    
             ]),
 
-            // --- Bagian Detail Rekam Medis ---
+            // ==============================
+            // Detail Rekam Medis
+            // ==============================
             ComponentsGrid::make(2)->schema([
                 DateTimePicker::make('tanggal')
                     ->label('Tanggal Rekam Medis')
@@ -98,8 +126,5 @@ class RekamMedisForm
                 ->rows(3)
                 ->columnSpanFull(),
         ]);
-                        
-                
-        
     }
 }

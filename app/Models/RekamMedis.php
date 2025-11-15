@@ -27,23 +27,24 @@ class RekamMedis extends Model
         'tanggal' => 'datetime',
     ];
 
-    public function pasien(): BelongsTo
-    {
-        return $this->belongsTo(Pasien::class);
-    }
-
-    public function pemeriksaan(): BelongsTo
-    {
-        return $this->belongsTo(Pemeriksaan::class);
-    }
-
-    public function diagnosa(): BelongsTo
-    {
-        return $this->belongsTo(Diagnosa::class);
-    }
-
     public function details(): HasMany
     {
         return $this->hasMany(RekamMedisDetail::class);
     }
+
+    public function diagnosa() 
+    {
+    return $this->belongsTo(Diagnosa::class);
+    }
+
+    public function pemeriksaan() 
+    {
+        return $this->belongsTo(Pemeriksaan::class);
+    }
+
+    public function pasien() 
+    {
+        return $this->belongsTo(Pasien::class);
+    }
+
 }

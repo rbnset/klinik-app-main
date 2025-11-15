@@ -15,8 +15,8 @@ class RekamMedisDetailsTable
     {
         return $table
             ->columns([
-                TextColumn::make('rekamMedis.id')
-                    ->label('RM')
+                TextColumn::make('rekam_medis_id')
+                    ->label('RM ID')
                     ->sortable(),
 
                 TextColumn::make('rekamMedis.tanggal')
@@ -69,9 +69,7 @@ class RekamMedisDetailsTable
                     ->label('Dibuat')
                     ->sortable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->recordActions([
                 EditAction::make(),
             ])

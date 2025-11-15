@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Pendaftarans\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\{Grid, Select, DateTimePicker, TextInput, Textarea};
+use Filament\Forms\Components\{Grid, Select, Textarea};
 use Filament\Schemas\Components\Grid as ComponentsGrid;
+use Filament\Forms;
 
 class PendaftaranForm
 {
@@ -17,66 +18,43 @@ class PendaftaranForm
                 Select::make('pasien_id')
                     ->label('Nama Pasien')
                     ->relationship('pasien', 'nama_pasien')
-                    ->searchable()
+                    ->default(fn() => auth()->user()?->role?->name === 'pasien'
+                        ? optional(auth()->user()->pasien)->id
+                        : null)
+                    ->disabled(fn() => auth()->user()?->role?->name === 'pasien')
+                    ->dehydrated(true)
+                    ->searchable(fn() => auth()->user()?->role?->name !== 'pasien')
                     ->preload()
                     ->required(),
 
-                // 🔹 Nama Petugas (otomatis terisi kalau login sebagai petugas)
-                Select::make('user_id')
-                    ->label('Nama Petugas')
-                    ->options(function () {
-                        if (auth()->user()?->role?->name === 'petugas') {
-                            return [auth()->id() => auth()->user()?->name];
-                        }
-
-                        return \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'petugas'))
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray();
-                    })
-                    ->default(fn() => auth()->user()?->role?->name === 'petugas' ? auth()->id() : null)
-                    ->afterStateHydrated(function ($set) {
-                        if (auth()->user()?->role?->name === 'petugas') {
-                            $set('user_id', auth()->id()); // tampil langsung di form
-                        }
-                    })
-                    ->disabled(fn() => auth()->user()?->role?->name === 'petugas') // tidak bisa diubah oleh petugas
+                // 🔹 User ID (Hidden, otomatis untuk semua role saat create)
+                Forms\Components\Hidden::make('user_id')
+                    ->default(fn() => auth()->id())
                     ->dehydrated(true)
-                    ->required()
-                    ->rule('exists:users,id')
-                    ->searchable(fn() => auth()->user()?->role?->name !== 'petugas')
-                    ->preload(),
+                    ->visible(fn($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
 
                 // 🔹 Jadwal
                 Select::make('jadwal_id')
                     ->label('Jadwal')
                     ->options(function () {
                         $user = auth()->user();
-
                         $q = \App\Models\Jadwal::query()
                             ->with('user')
                             ->orderBy('hari')
                             ->orderBy('jam_mulai');
-
                         if ($user?->role?->name === 'dokter') {
                             $q->where('user_id', $user->id);
                         }
-
-                        return $q->get()->mapWithKeys(function ($j) {
-                            $nama    = $j->user->name ?? '-';
-                            $hari    = ucfirst($j->hari);
-                            $mulai   = (string) $j->jam_mulai;
-                            $selesai = (string) $j->jam_selesai;
-                            $ket     = $j->keterangan ? " | {$j->keterangan}" : '';
-                            return [$j->id => "{$nama} | {$hari} {$mulai}-{$selesai}{$ket}"];
-                        })->toArray();
+                        return $q->get()->mapWithKeys(fn($j) => [
+                            $j->id => ($j->user->name ?? '-') . " | " . ucfirst($j->hari) . " {$j->jam_mulai}-{$j->jam_selesai}" . ($j->keterangan ? " | {$j->keterangan}" : '')
+                        ])->toArray();
                     })
                     ->searchable()
                     ->preload()
                     ->required()
                     ->rule('exists:jadwals,id'),
 
-                // 🔹 Poli Tujuan dengan logika otomatis ubah tenaga medis
+                // 🔹 Poli Tujuan
                 Select::make('poli_tujuan')
                     ->label('Poli Tujuan')
                     ->options([
@@ -84,16 +62,10 @@ class PendaftaranForm
                         'Poli Kandungan' => 'Poli Kandungan',
                     ])
                     ->reactive()
-                    ->afterStateUpdated(function (callable $set, $state) {
-                        if ($state === 'Poli Kandungan') {
-                            $set('tenaga_medis_tujuan', 'Bidan');
-                        } else {
-                            $set('tenaga_medis_tujuan', 'Dokter');
-                        }
-                    })
+                    ->afterStateUpdated(fn(callable $set, $state) => $set('tenaga_medis_tujuan', $state === 'Poli Kandungan' ? 'Bidan' : 'Dokter'))
                     ->required(),
 
-                // 🔹 Tenaga Medis Tujuan (otomatis terisi dari pilihan Poli)
+                // 🔹 Tenaga Medis
                 Select::make('tenaga_medis_tujuan')
                     ->label('Tenaga Medis')
                     ->options([
@@ -124,6 +96,8 @@ class PendaftaranForm
                         'batal' => 'Batal',
                     ])
                     ->default('menunggu')
+                    ->visible(fn() => auth()->user()?->role?->name !== 'pasien')
+                    ->dehydrated(true)
                     ->required(),
             ]),
 

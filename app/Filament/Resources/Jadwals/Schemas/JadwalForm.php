@@ -15,13 +15,21 @@ class JadwalForm
     {
         return $schema->components([
             ComponentsGrid::make(2)->schema([
-                Select::make('user_id')
-                    ->label('Tenaga Medis')
-                    ->relationship('user', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->rule('exists:users,id'),
+            Select::make('user_id')
+                ->label('Tenaga Medis')
+                ->relationship(
+                    name: 'user',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: function ($query) {
+                        $query->whereHas('role', function ($q) {
+                            $q->whereIn('name', ['dokter', 'bidan']);
+                        });
+                    }
+                )
+                ->searchable()
+                ->preload()
+                ->required(),
+
 
                 Select::make('hari')
                     ->label('Hari')

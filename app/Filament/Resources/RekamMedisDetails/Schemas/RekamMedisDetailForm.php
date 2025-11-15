@@ -11,6 +11,7 @@ use Filament\Forms\Components\{
     Repeater
 };
 use App\Models\Tindakan;
+use App\Models\RekamMedis;
 use Filament\Schemas\Components\Grid as ComponentsGrid;
 
 class RekamMedisDetailForm
@@ -18,18 +19,18 @@ class RekamMedisDetailForm
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
+
             ComponentsGrid::make(3)->schema([
+
+                // 🔹 Pilih Rekam Medis (wajib tampil di create)
                 Select::make('rekam_medis_id')
                     ->label('Rekam Medis')
                     ->relationship('rekamMedis', 'id')
-                    ->getOptionLabelFromRecordUsing(function ($rec) {
-                        if (! $rec) return '';
-                        $tgl = $rec->tanggal ? $rec->tanggal->format('d/m/Y H:i') : '-';
-                        return 'RM-' . $rec->getKey() . ' | ' . $tgl;
-                    })
+                    ->getOptionLabelFromRecordUsing(fn($rec) => $rec ? 'RM-'.$rec->id.' | '.$rec->tanggal?->format('d/m/Y H:i') : '')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->default(fn($livewire) => $livewire->record?->rekam_medis_id ?? null),
 
                 Select::make('tipe')
                     ->options([
@@ -58,8 +59,7 @@ class RekamMedisDetailForm
                     ->numeric()
                     ->default(1)
                     ->reactive()
-                    ->afterStateUpdated(
-                        fn(callable $get, callable $set) =>
+                    ->afterStateUpdated(fn(callable $get, callable $set) =>
                         $set('subtotal', (float) $get('qty') * (float) $get('harga_satuan'))
                     ),
 
@@ -68,8 +68,7 @@ class RekamMedisDetailForm
                     ->prefix('Rp')
                     ->default(0)
                     ->reactive()
-                    ->afterStateUpdated(
-                        fn(callable $get, callable $set) =>
+                    ->afterStateUpdated(fn(callable $get, callable $set) =>
                         $set('subtotal', (float) $get('qty') * (float) $get('harga_satuan'))
                     ),
 
@@ -78,14 +77,13 @@ class RekamMedisDetailForm
                     ->prefix('Rp')
                     ->readOnly(),
 
-                TextInput::make('id') // hanya untuk referensi cepat saat edit (opsional)
+                TextInput::make('id')
                     ->label('Detail ID')
                     ->disabled()
                     ->dehydrated(false)
                     ->visibleOn('edit'),
             ])->columnSpanFull(),
 
-            // OPSIONAL: nested tindakan kalau tipe = 'tindakan'
             Repeater::make('detailTindakans')
                 ->relationship('detailTindakans')
                 ->hidden(fn(callable $get) => $get('tipe') !== 'tindakan')
@@ -98,19 +96,13 @@ class RekamMedisDetailForm
                         ->preload()
                         ->required()
                         ->reactive()
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            $t = Tindakan::find($state);
-                            if ($t) {
-                                $set('tarif', $t->tarif_default);
-                            }
-                        }),
+                        ->afterStateUpdated(fn($state, callable $set) => $set('tarif', Tindakan::find($state)?->tarif_default ?? 0)),
 
                     TextInput::make('qty')
                         ->numeric()
                         ->default(1)
                         ->reactive()
-                        ->afterStateUpdated(
-                            fn(callable $get, callable $set) =>
+                        ->afterStateUpdated(fn(callable $get, callable $set) =>
                             $set('subtotal', (float) $get('qty') * (float) $get('tarif'))
                         ),
 
@@ -119,8 +111,7 @@ class RekamMedisDetailForm
                         ->prefix('Rp')
                         ->default(0)
                         ->reactive()
-                        ->afterStateUpdated(
-                            fn(callable $get, callable $set) =>
+                        ->afterStateUpdated(fn(callable $get, callable $set) =>
                             $set('subtotal', (float) $get('qty') * (float) $get('tarif'))
                         ),
 

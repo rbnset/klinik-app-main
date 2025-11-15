@@ -54,21 +54,7 @@ class PendaftaranPolicy
      */
     public function update(User $user, Pendaftaran $pendaftaran): bool
     {
-        if ($this->is($user, ['petugas', 'admin'])) return true;
-
-        if ($user->hasRole('dokter')) {
-            return strtolower($pendaftaran->poli_tujuan) === 'poli umum';
-        }
-
-        if ($user->hasRole('bidan')) {
-            return strtolower($pendaftaran->poli_tujuan) === 'poli kandungan';
-        }
-
-        if ($user->hasRole('pasien')) {
-            return $pendaftaran->pasien_id === optional($user->pasien)->id;
-        }
-
-        return false;
+        return $this->is($user, ['petugas', 'admin']);
     }
 
     /**

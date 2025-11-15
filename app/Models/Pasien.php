@@ -25,16 +25,27 @@ class Pasien extends Model
         'pekerjaan',
         'nama_penanggung_jawab',
         'no_telp_penanggung_jawab',
+        'role',
     ];
 
-    public function pendaftarans(): HasMany
-    {
-        return $this->hasMany(Pendaftaran::class);
-    }
+
+
+public function diagnosa()
+{
+    return $this->hasManyThrough(Diagnosa::class, Pemeriksaan::class, 'pasien_id', 'pemeriksaan_id');
+}
+
+public function pendaftaran()
+{
+    return $this->hasMany(Pendaftaran::class);
+}
+
+
     public function pemeriksaans(): HasMany
     {
         return $this->hasMany(Pemeriksaan::class);
     }
+
     public function rekamMedis(): HasMany
     {
         return $this->hasMany(RekamMedis::class);

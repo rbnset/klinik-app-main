@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('pendaftarans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pasien_id')->constrained('pasiens');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained('users');
             $table->foreignId('jadwal_id')->constrained('jadwals');
-            $table->string('nomor_antrian', 20)->index();
             $table->enum('poli_tujuan', ['Poli Umum', 'Poli Kandungan']);
             $table->enum('tenaga_medis_tujuan', ['Dokter', 'Bidan'])->default('Dokter');
             $table->enum('jenis_pelayanan', ['umum', 'bpjs', 'asuransi'])->default('umum');

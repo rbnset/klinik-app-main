@@ -13,7 +13,6 @@ class Pendaftaran extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nomor_antrian',
         'pasien_id',
         'user_id',
         'jadwal_id',
