@@ -23,6 +23,7 @@ class AllAccountsSeeder extends Seeder
             ['name' => 'bidan',  'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'pasien', 'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'petugas', 'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'pemilik', 'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
         ], ['name'], ['guard_name', 'updated_at']);
 
         $roleIds = DB::table('roles')->pluck('id', 'name');
@@ -37,6 +38,7 @@ class AllAccountsSeeder extends Seeder
             ['name' => 'Petugas A', 'email' => 'petugas1@demo.test', 'role' => 'petugas'],
             ['name' => 'Petugas B', 'email' => 'petugas2@demo.test', 'role' => 'petugas'],
             ['name' => 'Pasien X',  'email' => 'pasien1@demo.test', 'role' => 'pasien'],
+            ['name' => 'Pemilik',  'email' => 'pemilik@demo.test', 'role' => 'pemilik'],
         ];
 
         foreach ($users as $u) {

@@ -4,6 +4,8 @@ namespace App\Observers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Pasien;
+
 
 class UserObserver
 {

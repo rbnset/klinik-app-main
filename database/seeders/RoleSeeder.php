@@ -22,6 +22,7 @@ class RoleSeeder extends Seeder
             ['name' => 'bidan',   'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'pasien',  'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'petugas', 'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
+            ['name' => 'pemilik', 'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
         ], ['name'], ['guard_name', 'updated_at']);
     }
 }
