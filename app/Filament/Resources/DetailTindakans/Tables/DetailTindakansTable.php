@@ -7,6 +7,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class DetailTindakansTable
 {
@@ -22,7 +23,7 @@ class DetailTindakansTable
                     ->label('Detail ID')
                     ->sortable(),
 
-                TextColumn::make('tindakan.nama')
+                TextColumn::make('tindakan.nama_tindakan')
                     ->label('Tindakan')
                     ->searchable()
                     ->sortable(),
@@ -58,6 +59,28 @@ class DetailTindakansTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            // ===============================
+            // Filter data berdasarkan role
+            // ===============================
+            ->modifyQueryUsing(function (Builder $query) {
+                $user = auth()->user();
+
+                if ($user->hasRole('dokter')) {
+                    // Hanya tampilkan detail tindakan yang tindakannya role dokter
+                    return $query->whereHas('tindakan', function ($q) {
+                        $q->where('role', 'dokter');
+                    });
+                }
+
+                if ($user->hasRole('bidan')) {
+                    // Hanya tampilkan detail tindakan yang tindakannya role bidan
+                    return $query->whereHas('tindakan', function ($q) {
+                        $q->where('role', 'bidan');
+                    });
+                }
+
+                return $query; // Admin atau role lain melihat semua
+            });
     }
 }

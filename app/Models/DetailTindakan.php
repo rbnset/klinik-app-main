@@ -21,6 +21,14 @@ class DetailTindakan extends Model
     protected static function booted(): void
     {
         static::saving(function (self $m) {
+            // Pastikan tarif & subtotal tidak null
+            if (is_null($m->tarif) && $m->tindakan_id) {
+                $tindakan = Tindakan::find($m->tindakan_id);
+                if ($tindakan) {
+                    $m->tarif = $tindakan->tarif;
+                }
+            }
+
             if (is_null($m->subtotal)) {
                 $m->subtotal = (float) $m->qty * (float) $m->tarif;
             }

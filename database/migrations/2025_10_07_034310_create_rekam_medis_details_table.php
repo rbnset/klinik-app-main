@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rekam_medis_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rekam_medis_id')->constrained('rekam_medis')->cascadeOnDelete();
-            $table->enum('tipe', ['tindakan', 'obat', 'lab', 'radiologi', 'lain']);
+            $table->enum('tipe', ['obat', 'suntik', 'infus']);
             $table->text('deskripsi');
             $table->decimal('qty', 10, 2)->default(1);
             $table->string('satuan', 30)->nullable();

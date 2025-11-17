@@ -51,7 +51,7 @@ class PendaftaranForm
                     })
                     ->searchable()
                     ->preload()
-                    ->required()
+                    ->required() 
                     ->rule('exists:jadwals,id'),
 
                 // 🔹 Poli Tujuan

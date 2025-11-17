@@ -3,69 +3,73 @@
 namespace App\Filament\Resources\DetailTindakans\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Forms\Components\{Grid, Select, TextInput};
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use App\Models\Tindakan;
-use App\Models\RekamMedisDetail; // <-- penting
-use Filament\Schemas\Components\Grid as ComponentsGrid;
 
 class DetailTindakanForm
 {
     public static function configure(Schema $schema): Schema
     {
-        return $schema->components([
-            ComponentsGrid::make(2)->schema([
-                Select::make('rekam_medis_detail_id')
-                    ->label('Detail RM')
-                    ->options(function () {
-                        return RekamMedisDetail::query()
-                            ->with('rekamMedis')
-                            ->latest('created_at')
-                            ->limit(100)
-                            ->get()
-                            ->mapWithKeys(function ($d) {
-                                $rmId = $d->rekamMedis?->id ?? '?';
-                                return [$d->id => "RM-{$rmId} | Detail-{$d->id}"];
-                            })
-                            ->toArray();
-                    })
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->disablePlaceholderSelection()
-                    ->rule('exists:rekam_medis_details,id'),
+        return $schema->schema([
+            // Relasi ke Detail RM
+            Select::make('rekam_medis_detail_id')
+                ->label('Detail RM')
+                ->relationship('detail', 'deskripsi')
+                ->required(),
 
-                Select::make('tindakan_id')
-                    ->relationship('tindakan', 'nama_tindakan')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        if ($state && ($t = Tindakan::find($state))) {
-                            $set('tarif', $t->tarif_default);
-                        }
-                    })
-                    ->rule('exists:tindakans,id'),
-            ]),
+            // Dropdown Tindakan sesuai role
+            Select::make('tindakan_id')
+                ->label('Tindakan')
+                ->required()
+                ->options(function () {
+                    $user = auth()->user();
 
-            ComponentsGrid::make(3)->schema([
-                TextInput::make('qty')
-                    ->numeric()->default(1)->reactive()
-                    ->afterStateUpdated(
-                        fn(callable $get, callable $set) =>
-                        $set('subtotal', (float)$get('qty') * (float)$get('tarif'))
-                    ),
+                    if ($user->hasRole('dokter')) {
+                        $role = 'dokter';
+                    } elseif ($user->hasRole('bidan')) {
+                        $role = 'bidan';
+                    } else {
+                        return [];
+                    }
 
-                TextInput::make('tarif')
-                    ->numeric()->prefix('Rp')->default(0)->reactive()
-                    ->afterStateUpdated(
-                        fn(callable $get, callable $set) =>
-                        $set('subtotal', (float)$get('qty') * (float)$get('tarif'))
-                    ),
+                    return Tindakan::where('role', $role)
+                        ->pluck('nama_tindakan', 'id');
+                })
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set) {
+                    $tindakan = Tindakan::find($state);
+                    if ($tindakan) {
+                        // Set tarif dan subtotal otomatis (qty default 1)
+                        $set('tarif', $tindakan->tarif);
+                        $set('subtotal', $tindakan->tarif);
+                    }
+                }),
 
-                TextInput::make('subtotal')
-                    ->numeric()->prefix('Rp')->readOnly(),
-            ])->columnSpanFull(),
+            // Qty
+            TextInput::make('qty')
+                ->label('Qty')
+                ->numeric()
+                ->default(1)
+                ->required()
+                ->reactive()
+                ->afterStateUpdated(function ($state, callable $set, $get) {
+                    $tarif = $get('tarif') ?? 0;
+                    $set('subtotal', $tarif * $state);
+                }),
+
+            // Tarif otomatis
+            TextInput::make('tarif')
+                ->label('Tarif')
+                ->disabled()
+                ->numeric()
+                ->required(),
+
+            // Subtotal otomatis
+            TextInput::make('subtotal')
+                ->label('Subtotal')
+                ->disabled()
+                ->numeric(),
         ]);
     }
 }

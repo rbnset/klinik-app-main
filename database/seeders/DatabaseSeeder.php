@@ -15,7 +15,10 @@ class DatabaseSeeder extends Seeder
             PendaftaranSeeder::class,
             PemeriksaanSeeder::class,
             DiagnosaSeeder::class,
-            RekamMeisSeeder::class,
+            RekamMedisSeeder::class,
+            RekamMedisDetailSeeder::class,
+            TindakanSeeder::class,
+            DetailTindakanSeeder::class,
         ]);
     }
 }

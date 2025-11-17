@@ -15,6 +15,7 @@ class RekamMedisDetailsTable
     {
         return $table
             ->columns([
+
                 TextColumn::make('rekam_medis_id')
                     ->label('RM ID')
                     ->sortable(),
@@ -24,26 +25,27 @@ class RekamMedisDetailsTable
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
+                /** ===========================
+                 *  FIX BAGIAN 'tipe'
+                 * =========================== */
                 BadgeColumn::make('tipe')
+                    ->label('Tipe')
                     ->colors([
-                        'primary' => 'tindakan',
                         'warning' => 'obat',
-                        'info'    => 'lab',
-                        'success' => 'radiologi',
-                        'gray'    => 'lain',
+                        'success' => 'suntik',
+                        'info'    => 'infus',
                     ])
-                    ->formatStateUsing(fn($s) => [
-                        'tindakan'  => 'Tindakan',
-                        'obat'      => 'Obat',
-                        'lab'       => 'Lab',
-                        'radiologi' => 'Radiologi',
-                        'lain'      => 'Lain',
-                    ][$s] ?? $s)
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'obat'   => 'Obat',
+                        'suntik' => 'Suntik',
+                        'infus'  => 'Infus',
+                        default  => ucfirst($state),
+                    })
                     ->sortable(),
 
                 TextColumn::make('deskripsi')
                     ->limit(40)
-                    ->tooltip(fn($record) => $record->deskripsi),
+                    ->tooltip(fn ($record) => $record->deskripsi),
 
                 TextColumn::make('qty')
                     ->alignRight()

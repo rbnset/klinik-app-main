@@ -10,8 +10,17 @@ class Tindakan extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'nama_tindakan', 'deskripsi', 'tarif'];
+    // Tambahkan 'role' ke fillable
+    protected $fillable = [
+        'nama_tindakan',
+        'deskripsi',
+        'tarif',
+        'role', // 'dokter' atau 'bidan'
+    ];
 
+    /**
+     * Relasi ke detail tindakans
+     */
     public function detailTindakans(): HasMany
     {
         return $this->hasMany(DetailTindakan::class);
