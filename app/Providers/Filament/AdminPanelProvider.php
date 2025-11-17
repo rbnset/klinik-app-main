@@ -7,6 +7,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
+use Filament\Pages\Auth\Register as RegisterPage;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -26,9 +27,10 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
-            ->authGuard('web')
-            ->login()
+            ->path('admin') // path panel
+            ->authGuard('web') // auth guard Laravel
+            ->login() // aktifkan login
+            ->registration()
             ->colors([
                 'primary' => Color::Amber,
             ])

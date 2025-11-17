@@ -45,7 +45,7 @@ class PasienPolicy
 
     public function create(User $user): bool
     {
-        return in_array($user->role?->name, ['petugas', 'admin']);
+        return in_array($user->role?->name, ['petugas', 'admin', 'pasien']);
     }
 
     public function update(User $user, Pasien $pasien): bool

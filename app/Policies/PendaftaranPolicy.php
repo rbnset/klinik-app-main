@@ -46,7 +46,7 @@ class PendaftaranPolicy
     public function create(User $user): bool
     {
         // pasien boleh daftar sendiri, petugas dan admin juga
-        return $this->is($user, ['petugas', 'pasien', 'admin']);
+        return $this->is($user, ['pasien', 'petugas', 'admin']);
     }
 
     /**
