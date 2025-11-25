@@ -35,8 +35,8 @@ class AllAccountsSeeder extends Seeder
             ['name' => 'Dr. Budi',      'email' => 'dokter2@demo.test', 'role' => 'dokter'],
             ['name' => 'Bidan Sari',    'email' => 'bidan1@demo.test',  'role' => 'bidan'],
             ['name' => 'Bidan Rina',    'email' => 'bidan2@demo.test',  'role' => 'bidan'],
-            ['name' => 'Petugas Loket', 'email' => 'petugas1@demo.test', 'role' => 'petugas'],
-            ['name' => 'Petugas Kasir', 'email' => 'petugas2@demo.test', 'role' => 'petugas'],
+            ['name' => 'Petugas', 'email' => 'petugas1@demo.test', 'role' => 'petugas'],
+            ['name' => 'Petugas', 'email' => 'petugas2@demo.test', 'role' => 'petugas'],
             ['name' => 'Pasien Demo',   'email' => 'pasien1@demo.test', 'role' => 'pasien'],
             ['name' => 'Pemilik Klinik', 'email' => 'pemilik@demo.test', 'role' => 'pemilik'],
         ];
