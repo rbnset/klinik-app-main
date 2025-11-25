@@ -51,10 +51,11 @@ class PasienResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListPasiens::route('/'),
-            'create' => CreatePasien::route('/create'),
-            'view' => ViewPasien::route('/{record}'),
-            'edit' => EditPasien::route('/{record}/edit'),
+            'index' => Pages\ListPasiens::route('/'),
+        'create' => Pages\CreatePasien::route('/create'),
+        'view' => Pages\ViewPasien::route('/{record}'),
+        'edit' => Pages\EditPasien::route('/{record}/edit'),
+         'kartu-pasien-saya' => Pages\KartuPasienSaya::route('/{record}/kartu'),
         ];
     }
 

@@ -25,16 +25,25 @@ class DetailTindakanForm
                 ->options(function () {
                     $user = auth()->user();
 
-                    if ($user->hasRole('dokter')) {
-                        $role = 'dokter';
-                    } elseif ($user->hasRole('bidan')) {
-                        $role = 'bidan';
-                    } else {
-                        return [];
+                    // === ROLE ADMIN → LIHAT SEMUA ===
+                    if ($user->hasRole('admin')) {
+                        return Tindakan::pluck('nama_tindakan', 'id');
                     }
 
-                    return Tindakan::where('role', $role)
-                        ->pluck('nama_tindakan', 'id');
+                    // === ROLE DOKTER ===
+                    if ($user->hasRole('dokter')) {
+                        return Tindakan::where('role', 'dokter')
+                            ->pluck('nama_tindakan', 'id');
+                    }
+
+                    // === ROLE BIDAN ===
+                    if ($user->hasRole('bidan')) {
+                        return Tindakan::where('role', 'bidan')
+                            ->pluck('nama_tindakan', 'id');
+                    }
+
+                    // Role lain kosong
+                    return [];
                 })
                 ->reactive()
                 ->afterStateUpdated(function ($state, callable $set) {

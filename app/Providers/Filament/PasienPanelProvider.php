@@ -7,7 +7,6 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
-use Filament\Pages\Auth\Register as RegisterPage;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -20,26 +19,56 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class PasienPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
-            ->id('admin')
-            ->path('admin') // path panel
-            ->authGuard('web') // auth guard Laravel
-            ->login() // aktifkan login
-            ->registration()
+            ->id('pasien')
+            ->path('pasien')
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+
+            // =============================
+            // RESOURCE PASIEN (BENAR)
+            // =============================
+            ->discoverResources(
+                in: app_path('Filament/Resources/Pasiens'),
+                for: 'App\Filament\Resources\Pasiens'
+            )
+
+            // =============================
+            // DISCOVER CUSTOM PAGES → TIDAK ADA
+            // jadi NONAKTIFKAN SAJA
+            // =============================
+            // ->discoverPages(
+            //     in: app_path('Filament/Pasiens/Pages'),
+            //     for: 'App\Filament\Pasiens\Pages'
+            // )
+
+            // =============================
+            // PAGE YANG MEMANG PANEL PAGE
+            // =============================
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+
+            // =============================
+            // WIDGETS
+            // =============================
+            ->discoverWidgets(
+                in: app_path('Filament/Pasiens/Widgets'),
+                for: 'App\Filament\Pasiens\Widgets'
+            )
+            ->widgets([
+                AccountWidget::class,
+                FilamentInfoWidget::class,
+            ])
+
+            // =============================
+            // MIDDLEWARE
+            // =============================
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -51,9 +80,9 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+
             ->authMiddleware([
                 Authenticate::class,
             ]);
     }
-    
 }

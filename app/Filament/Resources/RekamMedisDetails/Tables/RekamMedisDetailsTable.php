@@ -25,9 +25,6 @@ class RekamMedisDetailsTable
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
-                /** ===========================
-                 *  FIX BAGIAN 'tipe'
-                 * =========================== */
                 BadgeColumn::make('tipe')
                     ->label('Tipe')
                     ->colors([
@@ -73,7 +70,12 @@ class RekamMedisDetailsTable
             ])
             ->filters([])
             ->recordActions([
-                EditAction::make(),
+
+                // ⛔ Hilangkan tombol EDIT untuk role admin
+                EditAction::make()->visible(fn () =>
+                    in_array(auth()->user()?->role?->name, ['dokter', 'bidan'])
+                ),
+
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

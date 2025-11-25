@@ -8,17 +8,16 @@ use App\Filament\Resources\Tindakans\Pages\ListTindakans;
 use App\Filament\Resources\Tindakans\Schemas\TindakanForm;
 use App\Filament\Resources\Tindakans\Tables\TindakansTable;
 use App\Models\Tindakan;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class TindakanResource extends Resource
 {
     protected static ?string $model = Tindakan::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string| \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Schema $schema): Schema
     {
@@ -30,11 +29,29 @@ class TindakanResource extends Resource
         return TindakansTable::configure($table);
     }
 
-    public static function getRelations(): array
+    public static function getEloquentQuery(): Builder
     {
-        return [
-            //
-        ];
+        $user = auth()->user();
+
+        // ADMIN -> lihat semua tindakan
+        if ($user->hasRole('admin')) {
+            return parent::getEloquentQuery();
+        }
+
+        // BIDAN -> hanya tindakan milik bidan
+        if ($user->hasRole('bidan')) {
+            return parent::getEloquentQuery()
+                ->where('role', 'bidan');
+        }
+
+        // DOKTER -> hanya tindakan milik dokter
+        if ($user->hasRole('dokter')) {
+            return parent::getEloquentQuery()
+                ->where('role', 'dokter');
+        }
+
+        // Default
+        return parent::getEloquentQuery();
     }
 
     public static function getPages(): array

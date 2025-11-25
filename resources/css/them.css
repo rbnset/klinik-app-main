@@ -1,0 +1,63 @@
+/* ================================
+   FILAMENT CUSTOM THEME
+   Warna-warna gradient untuk Card
+   ================================ */
+
+/* --- Background Color Classes --- */
+
+.bg-primary-gradient {
+    background: linear-gradient(135deg, #4f46e5, #3b82f6);
+    color: white !important;
+}
+
+.bg-success-gradient {
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: white !important;
+}
+
+.bg-warning-gradient {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    color: white !important;
+}
+
+.bg-danger-gradient {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    color: white !important;
+}
+
+/* -------------------------------
+   Text warna putih untuk angka card
+   ------------------------------- */
+
+.card-stats-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff !important;
+}
+
+.card-stats-label {
+    font-size: 14px;
+    color: #f1f5f9 !important;
+}
+
+/* -------------------------------
+   Styling custom untuk Card Filament
+   ------------------------------- */
+
+.filament-stats-card {
+    border-radius: 14px !important;
+    padding: 22px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+    transition: transform 0.2s;
+}
+
+.filament-stats-card:hover {
+    transform: translateY(-4px);
+}
+
+/* --------------------------------
+   Override default Filament card bg
+   -------------------------------- */
+.filament-stats-card div {
+    color: white !important;
+}

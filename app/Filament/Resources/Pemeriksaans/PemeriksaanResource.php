@@ -32,17 +32,42 @@ class PemeriksaanResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListPemeriksaans::route('/'),
+            'index'  => ListPemeriksaans::route('/'),
             'create' => CreatePemeriksaan::route('/create'),
-            'edit' => EditPemeriksaan::route('/{record}/edit'),
+            'edit'   => EditPemeriksaan::route('/{record}/edit'),
         ];
+    }
+
+    /**
+     * Hanya dokter & bidan yang boleh membuat pemeriksaan.
+     * Admin hanya melihat (read-only).
+     */
+    public static function canCreate(): bool
+    {
+        $role = auth()->user()?->role?->name ?? null;
+        return in_array($role, ['dokter', 'bidan']);
+    }
+
+    /**
+     * Hanya dokter & bidan boleh edit.
+     */
+    public static function canEdit($record): bool
+    {
+        $role = auth()->user()?->role?->name ?? null;
+        return in_array($role, ['dokter', 'bidan']);
+    }
+
+    /**
+     * Tidak ada yang boleh menghapus pemeriksaan.
+     */
+    public static function canDelete($record): bool
+    {
+        return false;
     }
 }

@@ -8,7 +8,8 @@ use Filament\Forms\Components\{
     Select,
     DateTimePicker,
     Textarea,
-    TextInput
+    TextInput,
+    Hidden
 };
 use App\Models\Pendaftaran;
 use Filament\Schemas\Components\Grid as ComponentsGrid;
@@ -23,18 +24,19 @@ class PemeriksaanForm
 
         // Hanya dokter & bidan yang boleh mengisi pemeriksaan
         if (!in_array($role, ['dokter', 'bidan'])) {
+            // Untuk admin/pasien/petugas: form kosong (tidak bisa create)
             return $schema->components([]);
         }
 
         return $schema->components([
 
             // ============================================
-            //     GRID: PENDAFTARAN - PASIEN - TENAGA MEDIS
+            // GRID: PENDAFTARAN - PASIEN - TENAGA MEDIS
             // ============================================
             ComponentsGrid::make(3)->schema([
 
                 // --------------------------
-                // SELECT PENDAFTARAN
+                // SELECT PENDAFTARAN (difilter menurut role/poli)
                 // --------------------------
                 Select::make('pendaftaran_id')
                     ->label('Pendaftaran')
@@ -56,21 +58,18 @@ class PemeriksaanForm
                     ->preload()
                     ->required()
                     ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set) {
+                    ->afterStateUpdated(function ($state, callable $set) use ($role) {
                         $pendaftaran = Pendaftaran::find($state);
 
                         if ($pendaftaran) {
                             // Auto set pasien
                             $set('pasien_id', $pendaftaran->pasien_id);
 
-                            // Auto set dokter/bidan sesuai poli
-                            $role = Auth::user()->role?->name ?? null;
-
+                            // Otomatis set dokter_id ke user login (dokter/bidan) 
+                            // hanya jika pendaftaran sesuai poli dan user role cocok
                             if ($pendaftaran->poli_tujuan === 'Poli Umum' && $role === 'dokter') {
                                 $set('dokter_id', Auth::id());
-                            }
-
-                            if ($pendaftaran->poli_tujuan === 'Poli Kandungan' && $role === 'bidan') {
+                            } elseif ($pendaftaran->poli_tujuan === 'Poli Kandungan' && $role === 'bidan') {
                                 $set('dokter_id', Auth::id());
                             }
                         }
@@ -86,7 +85,7 @@ class PemeriksaanForm
                     ->required(),
 
                 // ---------------------------
-                // SELECT TENAGA MEDIS (DOKTER/BIDAN)
+                // SELECT TENAGA MEDIS (DOKTER/BIDAN) -- disabled, auto default
                 // ---------------------------
                 Select::make('dokter_id')
                     ->relationship('dokter', 'name')
@@ -94,14 +93,17 @@ class PemeriksaanForm
                     ->searchable()
                     ->preload()
                     ->default(fn () => Auth::id())
-                    ->disabled()        // tidak boleh diganti
-                    ->dehydrated()      // WAJIB agar tetap terkirim ke DB
+                    ->disabled()        // user tidak boleh ganti
+                    ->dehydrated()      // wajib agar dikirim ke DB
                     ->required()
                     ->afterStateHydrated(function ($state, callable $set) {
                         if (!$state) {
                             $set('dokter_id', Auth::id());
                         }
                     }),
+
+                // (opsional Hidden field untuk memastikan selalu terkirim, tidak wajib jika Select diatas sudah dehydrated)
+                Hidden::make('auto_set_marker')->default(true)->dehydrated(false),
             ]),
 
             // ============================

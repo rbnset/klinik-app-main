@@ -15,51 +15,71 @@ class DiagnosasTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Filter rows sesuai role (dokter / bidan / pasien)
             ->modifyQueryUsing(function (Builder $query) {
                 $user = Auth::user();
                 $role = $user->role?->name ?? null;
 
+                // ============================
+                // ADMIN → tampilkan semua data
+                // ============================
+                if ($role === 'admin') {
+                    return; // tanpa filter
+                }
+
+                // ============================
+                // DOKTER → diagnosa Poli Umum
+                // ============================
                 if ($role === 'dokter') {
-                    // Tampilkan hanya diagnosa yang terkait pemeriksaan → pendaftaran.poli_tujuan = Poli Umum
                     $query->whereHas('pemeriksaan', function ($q) {
                         $q->whereHas('pendaftaran', function ($q2) {
                             $q2->where('poli_tujuan', 'Poli Umum');
                         });
                     });
-                } elseif ($role === 'bidan') {
-                    // Tampilkan hanya diagnosa yang terkait pemeriksaan → pendaftaran.poli_tujuan = Poli Kandungan
+                    return;
+                }
+
+                // ============================
+                // BIDAN → diagnosa Poli Kandungan
+                // ============================
+                if ($role === 'bidan') {
                     $query->whereHas('pemeriksaan', function ($q) {
                         $q->whereHas('pendaftaran', function ($q2) {
                             $q2->where('poli_tujuan', 'Poli Kandungan');
                         });
                     });
-                } elseif ($role === 'pasien') {
-                    // Pasien hanya melihat diagnosa miliknya sendiri
+                    return;
+                }
+
+                // ============================
+                // PASIEN → diagnosa miliknya saja
+                // ============================
+                if ($role === 'pasien') {
                     $pasienId = optional($user->pasien)->id;
                     $query->whereHas('pemeriksaan', function ($q) use ($pasienId) {
                         $q->where('pasien_id', $pasienId);
                     });
-                } else {
-                    // Role lain tidak boleh melihat data
-                    $query->whereRaw('0 = 1');
+                    return;
                 }
+
+                // Role lain → tidak dapat melihat apapun
+                $query->whereRaw('0 = 1');
             })
 
             ->columns([
-                // Kolom pemeriksaan dengan label human-readable
                 TextColumn::make('pemeriksaan.id')
                     ->label('Pemeriksaan')
                     ->sortable()
-                    ->searchable(fn ($query, $search) => $query->orWhereHas('pemeriksaan', function ($q) use ($search) {
-                        $q->where('id', $search)
-                          ->orWhereHas('pasien', function ($qp) use ($search) {
-                              $qp->where('nama_pasien', 'like', "%{$search}%");
-                          });
-                    }))
+                    ->searchable(fn ($query, $search) => 
+                        $query->orWhereHas('pemeriksaan', function ($q) use ($search) {
+                            $q->where('id', $search)
+                              ->orWhereHas('pasien', function ($qp) use ($search) {
+                                  $qp->where('nama_pasien', 'like', "%{$search}%");
+                              });
+                        })
+                    )
                     ->formatStateUsing(function ($state, $record) {
                         $pemeriksaan = $record->pemeriksaan;
-                        $pasienNama = $pemeriksaan && $pemeriksaan->pasien ? $pemeriksaan->pasien->nama_pasien : '-';
+                        $pasienNama = $pemeriksaan?->pasien?->nama_pasien ?? '-';
                         return "Periksa ID: {$state} | Pasien: {$pasienNama}";
                     }),
 
@@ -82,19 +102,23 @@ class DiagnosasTable
                     ->sortable(),
             ])
 
-            ->filters([
-                //
-            ])
+            ->filters([])
 
             ->recordActions([
                 EditAction::make()
-                    ->visible(fn() => in_array(Auth::user()->role?->name, ['dokter', 'bidan'])),
+                    ->visible(fn() => in_array(Auth::user()->role?->name, [
+                        'admin',   // admin diperbolehkan edit
+                        'dokter',
+                        'bidan',
+                    ])),
             ])
 
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn() => in_array(Auth::user()->role?->name, ['admin', 'petugas'])),
+                        ->visible(fn() => in_array(Auth::user()->role?->name, [
+                            'admin', // admin diperbolehkan delete
+                        ])),
                 ]),
             ]);
     }

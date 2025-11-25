@@ -14,9 +14,15 @@ class ListPendaftarans extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Tombol "New Pendaftaran" hanya muncul untuk admin & petugas
             CreateAction::make()
-                ->visible(fn() => Auth::check() && in_array(Auth::user()->role?->name, ['admin', 'petugas'])),
+                ->visible(function () {
+                    if (!Auth::check()) return false;
+
+                    $role = Auth::user()->role?->name;
+
+                    // IZINKAN: admin, petugas, pasien
+                    return in_array($role, ['admin', 'petugas', 'pasien']);
+                }),
         ];
     }
 }

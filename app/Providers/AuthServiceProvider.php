@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Models\Pasien;
+use App\Models\Pendaftaran;
 use App\Policies\PasienPolicy;
+use App\Policies\PendaftaranPolicy;
+use App\Policies\DashboardPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -16,6 +19,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Pasien::class => PasienPolicy::class,
         Pendaftaran::class => PendaftaranPolicy::class,
+        \App\Filament\Pages\Dashboard::class => \App\Policies\DashboardPolicy::class,
+
     ];
 
     /**

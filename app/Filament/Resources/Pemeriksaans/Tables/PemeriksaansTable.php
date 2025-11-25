@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Pemeriksaans\Tables;
 
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -22,21 +21,17 @@ class PemeriksaansTable
                 $role = $user->role?->name ?? null;
 
                 if ($role === 'dokter') {
-                    // Hanya tampilkan yang poli_tujuan Poli Umum
-                    $query->whereHas('pendaftaran', function ($q) {
-                        $q->where('poli_tujuan', 'Poli Umum');
-                    });
+                    // Hanya tampilkan pemeriksaan yang berasal dari pendaftaran Poli Umum
+                    $query->whereHas('pendaftaran', fn($q) => $q->where('poli_tujuan', 'Poli Umum'));
                 } elseif ($role === 'bidan') {
-                    // Hanya tampilkan yang poli_tujuan Poli Kandungan
-                    $query->whereHas('pendaftaran', function ($q) {
-                        $q->where('poli_tujuan', 'Poli Kandungan');
-                    });
+                    // Hanya tampilkan pemeriksaan yang berasal dari pendaftaran Poli Kandungan
+                    $query->whereHas('pendaftaran', fn($q) => $q->where('poli_tujuan', 'Poli Kandungan'));
                 } elseif ($role === 'pasien') {
-                    // Pasien hanya lihat data miliknya sendiri
+                    // Pasien hanya lihat pemeriksaannya sendiri
                     $query->where('pasien_id', optional($user->pasien)->id);
                 } else {
-                    // Role lain tidak boleh melihat data
-                    $query->whereRaw('0 = 1');
+                    // admin / petugas / role lain: lihat semua (read-only for admin is enforced elsewhere)
+                    // tidak menambah kondisi => menampilkan semua pemeriksaan
                 }
             })
             ->columns([
@@ -61,11 +56,16 @@ class PemeriksaansTable
                 TextColumn::make('respirasi')->label('RR (x/mnt)')->sortable(),
             ])
             ->recordActions([
-                EditAction::make()->visible(fn() => in_array(Auth::user()->role?->name, ['dokter', 'bidan'])),
+                // Edit hanya untuk dokter & bidan
+                EditAction::make()
+                    ->visible(fn() => in_array(Auth::user()->role?->name, ['dokter', 'bidan'])),
             ])
             ->toolbarActions([
+                // Hanya tampilkan toolbar actions yang aman:
+                // - Tidak ada CreateAction di sini (create dikontrol oleh Resource::canCreate)
+                // - Tidak ada DeleteBulkAction agar tidak ada penghapusan massal
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->visible(fn() => in_array(Auth::user()->role?->name, ['admin', 'petugas'])),
+                    // Kosongkan atau isi dengan aksi yang aman jika perlu
                 ]),
             ]);
     }

@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
@@ -41,30 +42,34 @@ class PasiensTable
             ])
             ->modifyQueryUsing(function (Builder $query) {
                 $user = Auth::user();
-                $role = $user->role?->name;
+                $role = $user?->role?->name;
 
                 if ($role === 'pasien') {
-                    // hanya pasien itu sendiri
                     $query->where('id', optional($user->pasien)->id);
                 }
 
                 if ($role === 'dokter') {
-                    // pasien yang pernah daftar ke Poli Umum
                     $pasienIds = Pendaftaran::where('poli_tujuan', 'Poli Umum')->pluck('pasien_id');
                     $query->whereIn('id', $pasienIds);
                 }
 
                 if ($role === 'bidan') {
-                    // pasien yang pernah daftar ke Poli Kandungan
                     $pasienIds = Pendaftaran::where('poli_tujuan', 'Poli Kandungan')->pluck('pasien_id');
                     $query->whereIn('id', $pasienIds);
                 }
-
-                // petugas & admin → tidak ada filter (lihat semua)
             })
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
+
+                // Tombol Kartu Pasien → HANYA muncul untuk pasien & petugas
+                Action::make('kartu')
+                    ->label('Kartu Pasien')
+                    ->visible(fn ($record) => in_array(strtolower(auth()->user()?->role?->name ?? ''), ['pasien', 'petugas']))
+                    ->url(fn ($record) => auth()->user()->hasRole('pasien') 
+                        ? route('kartu.pasien.saya') 
+                        : route('kartu.pasien.show', $record->id))
+                    ->openUrlInNewTab(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

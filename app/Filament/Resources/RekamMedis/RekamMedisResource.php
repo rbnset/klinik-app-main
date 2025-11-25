@@ -32,17 +32,32 @@ class RekamMedisResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListRekamMedis::route('/'),
+            'index'  => ListRekamMedis::route('/'),
             'create' => CreateRekamMedis::route('/create'),
-            'edit' => EditRekamMedis::route('/{record}/edit'),
+            'edit'   => EditRekamMedis::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+        $role = auth()->user()?->role?->name;
+        return in_array($role, ['dokter', 'bidan']);
+    }
+
+    public static function canEdit($record): bool
+    {
+        $role = auth()->user()?->role?->name;
+        return in_array($role, ['dokter', 'bidan']);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
     }
 }

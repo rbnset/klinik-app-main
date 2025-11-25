@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\RekamMedis\Tables;
 
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,88 +15,140 @@ class RekamMedisTable
     public static function configure(Table $table): Table
     {
         return $table
-            // Filter sesuai role dan eager load relasi
-            ->modifyQueryUsing(function (Builder $query) {
-                $user = Auth::user();
-                $role = $user->role?->name ?? null;
-
-                // Eager load relasi penting
-                $query->with(['diagnosa', 'pemeriksaan', 'pemeriksaan.pendaftaran', 'pasien']);
-
-                if ($role === 'dokter') {
-                    $query->whereHas('pemeriksaan', function ($q) {
-                        $q->whereHas('pendaftaran', function ($q2) {
-                            $q2->where('poli_tujuan', 'Poli Umum');
-                        });
-                    });
-                } elseif ($role === 'bidan') {
-                    $query->whereHas('pemeriksaan', function ($q) {
-                        $q->whereHas('pendaftaran', function ($q2) {
-                            $q2->where('poli_tujuan', 'Poli Kandungan');
-                        });
-                    });
-                } elseif ($role === 'pasien') {
-                    $pasienId = optional($user->pasien)->id;
-                    $query->where('pasien_id', $pasienId);
-                } else {
-                    $query->whereRaw('0 = 1'); // role lain tidak bisa lihat
-                }
-            })
+            ->modifyQueryUsing(fn (Builder $query) => self::applyRoleFilter($query))
 
             ->columns([
-                TextColumn::make('id')
+                Tables\Columns\TextColumn::make('id')
                     ->label('RM')
                     ->sortable(),
 
-                TextColumn::make('pasien.nama_pasien')
+                Tables\Columns\TextColumn::make('pasien.nama_pasien')
                     ->label('Pasien')
                     ->searchable(),
 
-                TextColumn::make('pemeriksaan.tanggal_periksa')
+                Tables\Columns\TextColumn::make('pemeriksaan.tanggal_periksa')
                     ->label('Tgl Pemeriksaan')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
-                TextColumn::make('diagnosa.nama_diagnosa')
+                Tables\Columns\TextColumn::make('diagnosa.nama_diagnosa')
                     ->label('Diagnosa')
-                    ->searchable()
-                    ->formatStateUsing(fn($state, $record) => $record->diagnosa?->nama_diagnosa ?? '-'),
+                    ->formatStateUsing(fn ($state, $record) => $record->diagnosa?->nama_diagnosa ?? '-')
+                    ->searchable(),
 
-                TextColumn::make('tanggal')
+                Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tanggal Rekam Medis')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
-                TextColumn::make('riwayat_alergi')
+                Tables\Columns\TextColumn::make('riwayat_alergi')
                     ->label('Riwayat Alergi')
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('riwayat_penyakit')
+                Tables\Columns\TextColumn::make('riwayat_penyakit')
                     ->label('Riwayat Penyakit')
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('rencana_terapi')
+                Tables\Columns\TextColumn::make('rencana_terapi')
                     ->label('Rencana Terapi')
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('catatan')
+                Tables\Columns\TextColumn::make('catatan')
                     ->label('Catatan')
                     ->limit(30)
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            
-            ->recordActions([
-                EditAction::make(),
-            ])
-            
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+
+            ->recordActions(self::recordActions())
+            ->toolbarActions(self::toolbarActions());
+    }
+
+    /**
+     * ===========================
+     * FILTER DATA SESUAI ROLE
+     * ===========================
+     */
+    private static function applyRoleFilter(Builder $query)
+    {
+        $user = Auth::user();
+        $role = $user->role?->name ?? null;
+
+        // Eager load relasi penting
+        $query->with(['diagnosa', 'pemeriksaan', 'pemeriksaan.pendaftaran', 'pasien']);
+
+        // ADMIN → Melihat semua data
+        if ($role === 'admin') {
+            return;
+        }
+
+        // DOKTER → Hanya poli umum
+        if ($role === 'dokter') {
+            $query->whereHas('pemeriksaan.pendaftaran', fn ($q) =>
+                $q->where('poli_tujuan', 'Poli Umum')
+            );
+            return;
+        }
+
+        // BIDAN → Hanya poli kandungan
+        if ($role === 'bidan') {
+            $query->whereHas('pemeriksaan.pendaftaran', fn ($q) =>
+                $q->where('poli_tujuan', 'Poli Kandungan')
+            );
+            return;
+        }
+
+        // PASIEN → Hanya RM miliknya
+        if ($role === 'pasien') {
+            $pasienId = $user->pasien?->id;
+            $query->where('pasien_id', $pasienId);
+            return;
+        }
+
+        // Role lain tidak boleh lihat apapun
+        $query->whereRaw('0 = 1');
+    }
+
+    /**
+     * ===========================
+     * ACTION PER ROLE
+     * ===========================
+     */
+    private static function recordActions(): array
+    {
+        $role = Auth::user()->role?->name;
+
+        if ($role === 'admin') {
+            // Admin tidak boleh edit sama sekali
+            return [];
+        }
+
+        // Dokter & Bidan → bisa edit
+        return [
+            EditAction::make(),
+        ];
+    }
+
+    /**
+     * ===========================
+     * TOOLBAR ACTIONS (BULK)
+     * ===========================
+     */
+    private static function toolbarActions(): array
+    {
+        $role = Auth::user()->role?->name;
+
+        if ($role === 'admin') {
+            // Admin tidak boleh delete
+            return [];
+        }
+
+        return [
+            BulkActionGroup::make([
+                DeleteBulkAction::make(),
+            ]),
+        ];
     }
 }
-    
