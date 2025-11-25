@@ -11,13 +11,11 @@ Route::get('/', function () {
 // ROUTE KARTU PASIEN
 // ---------------------------
 Route::middleware(['auth'])->group(function () {
-    // Pasien login → melihat kartu dirinya sendiri
-    Route::get('/kartu-pasien/saya', [KartuPasienSayaController::class, 'pasienSaya'])
-        ->name('kartu.pasien.saya');
+    // pasien lihat kartunya sendiri
+    Route::get('/kartu-pasien-saya', [KartuPasienSayaController::class, 'pasienSaya'])
+        ->name('kartu-pasien.saya');
 
+    // petugas/admin lihat kartu pasien tertentu
     Route::get('/kartu-pasien/{pasien}', [KartuPasienSayaController::class, 'show'])
-     ->middleware('role:petugas')
-     ->name('kartu.pasien.show');
-
-
+        ->name('kartu-pasien.show');
 });

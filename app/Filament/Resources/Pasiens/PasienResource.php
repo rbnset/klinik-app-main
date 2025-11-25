@@ -2,25 +2,30 @@
 
 namespace App\Filament\Resources\Pasiens;
 
+use App\Filament\Resources\Pasiens\Pages;
+use App\Filament\Resources\Pasiens\Tables\PasiensTable;
+use App\Models\Pasien;
+use Filament\Forms;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use App\Filament\Resources\Pasiens\Pages\CreatePasien;
 use App\Filament\Resources\Pasiens\Pages\EditPasien;
 use App\Filament\Resources\Pasiens\Pages\ListPasiens;
 use App\Filament\Resources\Pasiens\Pages\ViewPasien;
 use App\Filament\Resources\Pasiens\Schemas\PasienForm;
 use App\Filament\Resources\Pasiens\Schemas\PasienInfolist;
-use App\Filament\Resources\Pasiens\Tables\PasiensTable;
-use App\Models\Pasien;
 use BackedEnum;
-use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+
 class PasienResource extends Resource
 {
     protected static ?string $model = Pasien::class;
+
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -36,11 +41,6 @@ class PasienResource extends Resource
         return PasienInfolist::configure($schema);
     }
 
-    public static function table(Table $table): Table
-    {
-        return PasiensTable::configure($table);
-    }
-
     public static function getRelations(): array
     {
         return [
@@ -48,22 +48,20 @@ class PasienResource extends Resource
         ];
     }
 
+    public static function table(Tables\Table $table): Tables\Table
+    {
+        return PasiensTable::configure($table);
+    }
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListPasiens::route('/'),
-        'create' => Pages\CreatePasien::route('/create'),
-        'view' => Pages\ViewPasien::route('/{record}'),
-        'edit' => Pages\EditPasien::route('/{record}/edit'),
-         'kartu-pasien-saya' => Pages\KartuPasienSaya::route('/{record}/kartu'),
-        ];
-    }
+            'create' => Pages\CreatePasien::route('/create'),
+            'edit' => Pages\EditPasien::route('/{record}/edit'),
 
-    public static function getRecordRouteBindingEloquentQuery(): Builder
-    {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+            // ✅ TANPA {record}, route statis
+            'kartu-pasien-saya' => Pages\KartuPasienSaya::route('/kartu-pasien-saya'),
+        ];
     }
 }
