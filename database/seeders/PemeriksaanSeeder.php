@@ -12,20 +12,24 @@ class PemeriksaanSeeder extends Seeder
     public function run(): void
     {
         // =====================================================
-        // 1. Ambil user yang berperan sebagai dokter & bidan
+        // 1. Ambil user yang berperan sebagai DOKTER & BIDAN
+        //    (admin tidak akan pernah terpilih di sini)
         // =====================================================
-        $dokter = User::whereHas('role', function ($q) {
-            $q->where('name', 'dokter');
+        $dokter = User::whereHas('role', function ($query) {
+            $query->where('name', 'dokter');
         })->first();
 
-        $bidan = User::whereHas('role', function ($q) {
-            $q->where('name', 'bidan');
+        $bidan = User::whereHas('role', function ($query) {
+            $query->where('name', 'bidan');
         })->first();
 
+        // Jika belum ada user dengan role dokter atau bidan, hentikan seeder
         if (! $dokter || ! $bidan) {
             $this->command?->warn(
-                '❗ PemeriksaanSeeder membutuhkan minimal satu user dengan role "dokter" dan satu user dengan role "bidan". ' .
-                    'Silakan buat terlebih dahulu user dokter dan bidan sebelum menjalankan seeder ini.'
+                '❗ PemeriksaanSeeder membutuhkan minimal:' . PHP_EOL .
+                    '- 1 user dengan role "dokter"' . PHP_EOL .
+                    '- 1 user dengan role "bidan"' . PHP_EOL .
+                    'Silakan jalankan atau periksa kembali AllAccountsSeeder / seeder user Anda.'
             );
 
             return;
@@ -35,16 +39,20 @@ class PemeriksaanSeeder extends Seeder
         // 2. Buat data pemeriksaan untuk pendaftaran POLI UMUM
         //    → ditangani oleh DOKTER
         // =====================================================
-        $pendaftaranDokter = Pendaftaran::where('poli_tujuan', 'Poli Umum')->get();
+        $pendaftaranPoliUmum = Pendaftaran::where('poli_tujuan', 'Poli Umum')->get();
 
-        foreach ($pendaftaranDokter as $daftar) {
+        foreach ($pendaftaranPoliUmum as $pendaftaran) {
             Pemeriksaan::create([
-                'pendaftaran_id'  => $daftar->id,
-                'pasien_id'       => $daftar->pasien_id,
-                'dokter_id'       => $dokter->id,
+                'pendaftaran_id'  => $pendaftaran->id,
+                'pasien_id'       => $pendaftaran->pasien_id,
+                'dokter_id'       => $dokter->id, // Hanya user dengan role "dokter"
                 'tanggal_periksa' => now(),
                 'status'          => 'proses',
+
+                // Anamnesis / keluhan
                 'keluhan_utama'   => 'Pasien mengeluh pusing, lemas, dan nyeri ringan di bagian kepala sejak dua hari terakhir.',
+
+                // Pemeriksaan fisik dasar
                 'tinggi_badan'    => 165,
                 'berat_badan'     => 60,
                 'tekanan_darah'   => '120/80',
@@ -57,17 +65,25 @@ class PemeriksaanSeeder extends Seeder
         // =====================================================
         // 3. Buat data pemeriksaan untuk pendaftaran POLI KANDUNGAN
         //    → ditangani oleh BIDAN
+        //
+        //    Catatan:
+        //    - Kolom di tabel tetap bernama "dokter_id",
+        //      tapi isinya diisi ID user dengan role "bidan".
         // =====================================================
-        $pendaftaranBidan = Pendaftaran::where('poli_tujuan', 'Poli Kandungan')->get();
+        $pendaftaranPoliKandungan = Pendaftaran::where('poli_tujuan', 'Poli Kandungan')->get();
 
-        foreach ($pendaftaranBidan as $daftar) {
+        foreach ($pendaftaranPoliKandungan as $pendaftaran) {
             Pemeriksaan::create([
-                'pendaftaran_id'  => $daftar->id,
-                'pasien_id'       => $daftar->pasien_id,
-                'dokter_id'       => $bidan->id, // kolom tetap bernama dokter_id
+                'pendaftaran_id'  => $pendaftaran->id,
+                'pasien_id'       => $pendaftaran->pasien_id,
+                'dokter_id'       => $bidan->id, // DIISI user dengan role "bidan", BUKAN admin
                 'tanggal_periksa' => now(),
                 'status'          => 'proses',
+
+                // Anamnesis / keluhan
                 'keluhan_utama'   => 'Pasien mengeluh nyeri perut bagian bawah dan mual, terutama pada pagi hari, sesuai keluhan awal kehamilan.',
+
+                // Pemeriksaan fisik dasar
                 'tinggi_badan'    => 160,
                 'berat_badan'     => 55,
                 'tekanan_darah'   => '110/70',
@@ -76,5 +92,7 @@ class PemeriksaanSeeder extends Seeder
                 'respirasi'       => 19,
             ]);
         }
+
+        $this->command?->info('✅ PemeriksaanSeeder berhasil dijalankan. Data pemeriksaan terisi dengan dokter & bidan (tanpa admin).');
     }
 }
