@@ -13,23 +13,25 @@ class PendaftaranSeeder extends Seeder
 {
     public function run(): void
     {
-        // =======================================
-        // 1. Ambil tenaga medis (dokter / bidan)
-        // =======================================
-        $tenagaMedis = User::whereHas(
-            'role',
-            fn($q) =>
-            $q->whereIn('name', ['dokter', 'bidan'])
-        )->first();
+        // =====================================================
+        // 1. Ambil salah satu tenaga medis (dokter / bidan)
+        // =====================================================
+        $tenagaMedis = User::whereHas('role', function ($q) {
+            $q->whereIn('name', ['dokter', 'bidan']);
+        })->first();
 
         if (! $tenagaMedis) {
-            $this->command?->warn("⚠ Tidak ada user dengan role 'dokter' atau 'bidan'. Buat dulu user-nya.");
+            $this->command?->warn(
+                "⚠ Belum ada user dengan role 'dokter' atau 'bidan'. " .
+                    "Silakan buat minimal satu user dokter/bidan terlebih dahulu sebelum menjalankan PendaftaranSeeder."
+            );
+
             return;
         }
 
-        // =======================================
+        // =====================================================
         // 2. Ambil atau buat jadwal default
-        // =======================================
+        // =====================================================
         $jadwal = Jadwal::first();
 
         if (! $jadwal) {
@@ -38,23 +40,26 @@ class PendaftaranSeeder extends Seeder
                 'hari'        => 'senin',
                 'jam_mulai'   => '08:00',
                 'jam_selesai' => '08:30',
-                'keterangan'  => 'Ada',
+                'keterangan'  => 'Praktek pagi',
                 'sesi'        => '1',
             ]);
         }
 
-        // =======================================
-        // 3. TANGGAL-TANGGAL KUNJUNGAN
-        // =======================================
-        // Pasien dengan akun → besok
-        $tanggalUntukPasienDenganAkun = Carbon::now()->addDay()->toDateString();
+        // =====================================================
+        // 3. Tentukan tanggal-tanggal kunjungan
+        // =====================================================
+
+        // Pasien dengan akun → dijadwalkan besok
+        $tanggalUntukPasienDenganAkun = Carbon::now()
+            ->addDay()
+            ->toDateString();
 
         // Pasien tanpa akun → 4 hari berturut-turut setelahnya
-        $baseTanggalTanpaAkun = Carbon::now()->addDays(2); // mulai 2 hari dari sekarang
+        $baseTanggalTanpaAkun = Carbon::now()->addDays(2);
 
-        // =======================================
-        // 4. PASIEN DENGAN AKUN
-        // =======================================
+        // =====================================================
+        // 4. Contoh data: PASIEN DENGAN AKUN
+        // =====================================================
         $userPasien = User::create([
             'name'     => 'Pasien Akun',
             'email'    => 'pasienakun@example.com',
@@ -68,12 +73,12 @@ class PendaftaranSeeder extends Seeder
             'tempat_lahir'             => 'Bandung',
             'tanggal_lahir'            => '1995-02-02',
             'jenis_kelamin'            => 'Laki-laki',
-            'alamat'                   => 'Jl. Merdeka No. 1',
+            'alamat'                   => 'Jl. Merdeka No. 1, Bandung',
             'no_telp'                  => '081234567890',
             'golongan_darah'           => 'A',
             'agama'                    => 'Islam',
             'status_perkawinan'        => 'Belum Kawin',
-            'pekerjaan'                => 'Karyawan',
+            'pekerjaan'                => 'Karyawan Swasta',
             'nama_penanggung_jawab'    => 'Penanggung Jawab 1',
             'no_telp_penanggung_jawab' => '0811111111',
         ]);
@@ -86,33 +91,32 @@ class PendaftaranSeeder extends Seeder
             'poli_tujuan'          => 'Poli Umum',
             'tenaga_medis_tujuan'  => 'Dokter',
             'jenis_pelayanan'      => 'umum',
-            'keluhan'              => 'Keluhan pasien dengan akun',
+            'keluhan'              => 'Demam sejak dua hari terakhir disertai batuk kering dan pusing.',
             'status'               => 'menunggu',
         ]);
 
-        // =======================================
-        // 5. PASIEN TANPA AKUN (4 ORANG)
-        // =======================================
+        // =====================================================
+        // 5. Contoh data: PASIEN TANPA AKUN (4 ORANG)
+        // =====================================================
         for ($i = 1; $i <= 4; $i++) {
 
             $pasien = Pasien::create([
                 'user_id'                  => null,
                 'nik'                      => '32760101010100' . $i,
-                'nama_pasien'              => "Pasien Tanpa Akun $i",
+                'nama_pasien'              => "Pasien Tanpa Akun {$i}",
                 'tempat_lahir'             => 'Bandung',
-                'tanggal_lahir'            => "1990-01-0$i",
+                'tanggal_lahir'            => "1990-01-0{$i}",
                 'jenis_kelamin'            => 'Laki-laki',
-                'alamat'                   => "Alamat Pasien $i",
-                'no_telp'                  => "0812345678$i",
+                'alamat'                   => "Alamat Pasien {$i}, Bandung",
+                'no_telp'                  => "0812345678{$i}",
                 'golongan_darah'           => 'A',
                 'agama'                    => 'Islam',
                 'status_perkawinan'        => 'Belum Kawin',
                 'pekerjaan'                => 'Tidak Bekerja',
-                'nama_penanggung_jawab'    => "PJ Pasien $i",
-                'no_telp_penanggung_jawab' => "081111111$i",
+                'nama_penanggung_jawab'    => "Penanggung Jawab Pasien {$i}",
+                'no_telp_penanggung_jawab' => "081111111{$i}",
             ]);
 
-            // Aturan poli & tenaga medis tujuan
             if ($i <= 2) {
                 $poli              = 'Poli Umum';
                 $tenagaMedisTujuan = 'Dokter';
@@ -121,17 +125,34 @@ class PendaftaranSeeder extends Seeder
                 $tenagaMedisTujuan = 'Bidan';
             }
 
-            // Set tanggal unik per pasien tanpa akun
-            $tanggalKunjungan = $baseTanggalTanpaAkun->copy()->addDays($i - 1)->toDateString();
+            $tanggalKunjungan = $baseTanggalTanpaAkun
+                ->copy()
+                ->addDays($i - 1)
+                ->toDateString();
 
-            // Untuk role bidan, coba cari user dengan role 'bidan'
             $targetTenagaMedis = $i <= 2
                 ? $tenagaMedis
-                : User::whereHas(
-                    'role',
-                    fn($q) =>
-                    $q->where('name', 'bidan')
-                )->first() ?? $tenagaMedis;
+                : User::whereHas('role', function ($q) {
+                    $q->where('name', 'bidan');
+                })->first() ?? $tenagaMedis;
+
+            if ($poli === 'Poli Umum') {
+                if ($i === 1) {
+                    $keluhan = 'Batuk berdahak, pilek, dan tenggorokan terasa sakit sejak tiga hari lalu.';
+                } elseif ($i === 2) {
+                    $keluhan = 'Sakit kepala, badan pegal-pegal, dan merasa mudah lelah setelah beraktivitas.';
+                } else {
+                    $keluhan = 'Keluhan umum berupa pusing dan nyeri ringan di badan.';
+                }
+            } else {
+                if ($i === 3) {
+                    $keluhan = 'Nyeri perut bagian bawah dan keputihan yang mengganggu sejak beberapa hari terakhir.';
+                } elseif ($i === 4) {
+                    $keluhan = 'Siklus haid tidak teratur disertai nyeri hebat saat haid.';
+                } else {
+                    $keluhan = 'Keluhan terkait nyeri perut bagian bawah dan gangguan siklus haid.';
+                }
+            }
 
             Pendaftaran::create([
                 'pasien_id'            => $pasien->id,
@@ -141,7 +162,7 @@ class PendaftaranSeeder extends Seeder
                 'poli_tujuan'          => $poli,
                 'tenaga_medis_tujuan'  => $tenagaMedisTujuan,
                 'jenis_pelayanan'      => 'umum',
-                'keluhan'              => "Keluhan pasien tanpa akun $i",
+                'keluhan'              => $keluhan,
                 'status'               => 'menunggu',
             ]);
         }

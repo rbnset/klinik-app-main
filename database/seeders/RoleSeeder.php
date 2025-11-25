@@ -13,7 +13,6 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        //
         $now = now();
 
         DB::table('roles')->upsert([

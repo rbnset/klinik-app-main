@@ -154,7 +154,7 @@ class PendaftaranForm
                 ->label('Keluhan')
                 ->columnSpanFull(),
 
-            // 🔹 Catatan
+            // 🔹 Catatank
             Textarea::make('catatan')
                 ->label('Catatan')
                 ->columnSpanFull(),

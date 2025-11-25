@@ -11,7 +11,7 @@ class RekamMedisDetailSeeder extends Seeder
     public function run(): void
     {
         if (RekamMedis::count() == 0) {
-            $this->command->warn("RekamMedis kosong. Jalankan RekamMedisSeeder dahulu.");
+            $this->command->warn("⚠ Tabel RekamMedis masih kosong. Jalankan RekamMedisSeeder terlebih dahulu.");
             return;
         }
 
@@ -28,7 +28,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'obat',
-                    'deskripsi'      => 'Paracetamol 500mg',
+                    'deskripsi'      => 'Paracetamol 500 mg diminum 3x sehari setelah makan.',
                     'qty'            => 10,
                     'satuan'         => 'tablet',
                     'harga_satuan'   => 1500,
@@ -39,7 +39,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'suntik',
-                    'deskripsi'      => 'Vitamin B Kompleks',
+                    'deskripsi'      => 'Vitamin B Kompleks injeksi sekali pemberian.',
                     'qty'            => 1,
                     'satuan'         => 'ampul',
                     'harga_satuan'   => 25000,
@@ -50,7 +50,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'infus',
-                    'deskripsi'      => 'Infus NaCl 0.9%',
+                    'deskripsi'      => 'Infus NaCl 0.9% untuk rehidrasi.',
                     'qty'            => 1,
                     'satuan'         => 'botol',
                     'harga_satuan'   => 35000,
@@ -66,7 +66,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'obat',
-                    'deskripsi'      => 'Asam Folat 400mcg',
+                    'deskripsi'      => 'Asam folat 400 mcg diminum 1x sehari.',
                     'qty'            => 30,
                     'satuan'         => 'tablet',
                     'harga_satuan'   => 1000,
@@ -76,7 +76,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'suntik',
-                    'deskripsi'      => 'TT Imunisasi',
+                    'deskripsi'      => 'Imunisasi TT sesuai jadwal kehamilan.',
                     'qty'            => 1,
                     'satuan'         => 'ampul',
                     'harga_satuan'   => 50000,
@@ -86,7 +86,7 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'infus',
-                    'deskripsi'      => 'Infus D5',
+                    'deskripsi'      => 'Infus D5 untuk menjaga hidrasi dan kebutuhan energi.',
                     'qty'            => 1,
                     'satuan'         => 'botol',
                     'harga_satuan'   => 30000,

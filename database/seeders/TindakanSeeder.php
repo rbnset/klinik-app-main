@@ -15,13 +15,13 @@ class TindakanSeeder extends Seeder
         $tindakanDokter = [
             [
                 'nama_tindakan' => 'Pemeriksaan Fisik Umum',
-                'deskripsi'     => 'Pemeriksaan fisik oleh dokter umum',
+                'deskripsi'     => 'Pemeriksaan fisik lengkap oleh dokter umum, termasuk pemeriksaan tekanan darah, nadi, suhu, dan kondisi umum.',
                 'tarif'         => 25000,
                 'role'          => 'dokter',
             ],
             [
                 'nama_tindakan' => 'Nebulizer',
-                'deskripsi'     => 'Nebulizer untuk masalah pernapasan',
+                'deskripsi'     => 'Tindakan nebulizer untuk membantu melegakan saluran pernapasan pada pasien dengan keluhan sesak atau batuk berat.',
                 'tarif'         => 30000,
                 'role'          => 'dokter',
             ],
@@ -32,14 +32,14 @@ class TindakanSeeder extends Seeder
         // ==========================
         $tindakanBidan = [
             [
-                'nama_tindakan' => 'Pemeriksaan Kehamilan',
-                'deskripsi'     => 'Cek kondisi kehamilan oleh bidan',
+                'nama_tindakan' => 'Pemeriksaan Kehamilan Rutin',
+                'deskripsi'     => 'Pemeriksaan kehamilan oleh bidan, termasuk pemantauan tekanan darah ibu, berat badan, dan kondisi janin.',
                 'tarif'         => 35000,
                 'role'          => 'bidan',
             ],
             [
-                'nama_tindakan' => 'USG Kehamilan',
-                'deskripsi'     => 'USG 2D untuk pemeriksaan kandungan',
+                'nama_tindakan' => 'USG Kehamilan 2D',
+                'deskripsi'     => 'Pemeriksaan USG 2D untuk melihat kondisi janin dan usia kehamilan.',
                 'tarif'         => 80000,
                 'role'          => 'bidan',
             ],

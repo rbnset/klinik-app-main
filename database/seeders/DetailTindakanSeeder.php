@@ -13,7 +13,7 @@ class DetailTindakanSeeder extends Seeder
     {
         // Pastikan ada data rekam medis detail
         if (RekamMedisDetail::count() === 0) {
-            $this->command->warn("RekamMedisDetail kosong. Jalankan seeder RekamMedisDetail terlebih dahulu.");
+            $this->command->warn("⚠ Tabel RekamMedisDetail masih kosong. Jalankan seeder RekamMedisDetail terlebih dahulu.");
             return;
         }
 
@@ -21,19 +21,21 @@ class DetailTindakanSeeder extends Seeder
 
             $poli = $rmDetail->rekamMedis->pendaftaran->poli_tujuan ?? null;
 
-            if (!$poli) {
-                $this->command->warn("RekamMedisDetail ID {$rmDetail->id} tidak memiliki pendaftaran/poli_tujuan.");
+            if (! $poli) {
+                $this->command->warn("⚠ RekamMedisDetail ID {$rmDetail->id} tidak memiliki relasi pendaftaran atau poli_tujuan.");
                 continue;
             }
 
-            // Tentukan role yang sesuai
+            // Tentukan role yang sesuai berdasarkan poli
             $role = match ($poli) {
                 'Poli Umum'      => 'dokter',
                 'Poli Kandungan' => 'bidan',
                 default          => null,
             };
 
-            if (!$role) continue;
+            if (! $role) {
+                continue;
+            }
 
             // Ambil semua tindakan sesuai role
             $tindakans = Tindakan::where('role', $role)->get();
@@ -49,6 +51,6 @@ class DetailTindakanSeeder extends Seeder
             }
         }
 
-        $this->command->info("Seeder DetailTindakan berhasil dijalankan.");
+        $this->command->info("✅ DetailTindakanSeeder berhasil dijalankan dan detail tindakan dibuat berdasarkan poli & role.");
     }
 }

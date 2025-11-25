@@ -11,20 +11,20 @@ class DiagnosaSeeder extends Seeder
     public function run(): void
     {
         $deskripsiOptions = [
-            'Pasien menunjukkan gejala batuk dan demam tinggi.',
-            'Tekanan darah pasien di atas normal, perlu observasi lebih lanjut.',
-            'Keluhan nyeri perut muncul sejak kemarin.',
-            'Pasien merasa pusing dan lemas, dianjurkan istirahat cukup.',
-            'Kondisi ibu hamil dalam pemantauan rutin.',
-            'Pasien mengalami gangguan pernapasan ringan.',
-            'Tingkat gula darah pasien perlu dikontrol lebih ketat.',
-            'Pasien menunjukkan tanda-tanda anemia ringan.',
-            'Kondisi kesehatan umum pasien stabil namun perlu kontrol berkala.',
-            'Pasien mengeluhkan sakit kepala berulang kali.'
+            'Pasien menunjukkan gejala batuk dan demam tinggi, kemungkinan infeksi saluran pernapasan.',
+            'Tekanan darah pasien di atas normal, dianjurkan kontrol rutin dan perubahan pola hidup.',
+            'Keluhan nyeri perut bagian tengah muncul sejak kemarin, perlu evaluasi lebih lanjut.',
+            'Pasien merasa pusing dan lemas, disarankan istirahat cukup dan menjaga pola makan.',
+            'Kondisi ibu hamil dalam pemantauan rutin, gerak janin baik dan tekanan darah stabil.',
+            'Pasien mengalami gangguan pernapasan ringan, diperlukan observasi dan terapi bronkodilator bila perlu.',
+            'Tingkat gula darah pasien meningkat, kontrol diet dan pemeriksaan lanjutan dianjurkan.',
+            'Pasien menunjukkan tanda-tanda anemia ringan, dianjurkan pemeriksaan darah dan suplementasi zat besi.',
+            'Kondisi kesehatan umum pasien stabil namun dianjurkan kontrol berkala untuk pemantauan.',
+            'Pasien mengeluhkan sakit kepala berulang, kemungkinan terkait stres atau ketegangan otot.',
         ];
 
         // === UPDATE SEMUA DATA LAMA ===
-        Diagnosa::all()->each(function($diagnosa) use ($deskripsiOptions) {
+        Diagnosa::all()->each(function ($diagnosa) use ($deskripsiOptions) {
             $diagnosa->deskripsi = fake()->randomElement($deskripsiOptions);
             $diagnosa->save();
         });
@@ -44,28 +44,28 @@ class DiagnosaSeeder extends Seeder
             for ($i = 0; $i < $jumlah; $i++) {
                 Diagnosa::create([
                     'pemeriksaan_id' => $pemeriksaan->id,
-                    'nama_diagnosa' => fake()->randomElement([
-                        'Infeksi Saluran Pernapasan Akut',
+                    'nama_diagnosa'  => fake()->randomElement([
+                        'Infeksi Saluran Pernapasan Akut (ISPA)',
                         'Gastritis',
                         'Hipertensi',
                         'Diabetes Mellitus',
                         'Anemia',
-                        'ISPA',
                         'Demam Tinggi',
-                        'Sakit Kepala',
+                        'Sakit Kepala Tegang',
                         'Batuk Kronis',
-                        'Masalah Kehamilan'
+                        'Asma Bronkial',
+                        'Pemantauan Kehamilan',
                     ]),
                     'jenis_diagnosa' => fake()->randomElement([
                         'Utama',
                         'Sekunder',
-                        'Komplikasi'
+                        'Komplikasi',
                     ]),
-                    'deskripsi' => fake()->randomElement($deskripsiOptions),
+                    'deskripsi'      => fake()->randomElement($deskripsiOptions),
                 ]);
             }
         }
 
-        $this->command->info("✅ DiagnosaSeeder berhasil dijalankan dan semua deskripsi diubah ke bahasa Indonesia.");
+        $this->command->info("✅ DiagnosaSeeder berhasil dijalankan dan semua deskripsi diagnosa menggunakan bahasa Indonesia.");
     }
 }
