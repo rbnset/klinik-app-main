@@ -10,6 +10,29 @@ class PasienUserChart extends ChartWidget
 {
     protected ?string $heading = 'Statistik Pasien per Bulan';
 
+    /**
+     * Hanya role tertentu yang boleh melihat widget ini.
+     * Pasien TIDAK boleh melihat grafik.
+     */
+    public static function canView(): bool
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            return false;
+        }
+
+        $role = $user->role?->name;
+
+        return in_array($role, [
+            'admin',
+            'pemilik',
+            'petugas',
+            'dokter',
+            'bidan',
+        ]);
+    }
+
     protected function getType(): string
     {
         return 'line';
@@ -17,13 +40,15 @@ class PasienUserChart extends ChartWidget
 
     protected function getData(): array
     {
-        $labels = [];
-        $pasienData = [];
-        $userPasienData = [];
-        $allData = [];
+        $labels          = [];
+        $pasienData      = [];
+        $userPasienData  = [];
+        $allData         = [];
 
-        // Ambil 6 bulan terakhir
-        $months = collect(range(0, 5))->map(fn($i) => now()->subMonths($i))->reverse();
+        // Ambil 6 bulan terakhir (termasuk bulan ini)
+        $months = collect(range(0, 5))
+            ->map(fn($i) => now()->subMonths($i))
+            ->reverse();
 
         foreach ($months as $month) {
             $labels[] = $month->format('M Y');
@@ -47,44 +72,27 @@ class PasienUserChart extends ChartWidget
         }
 
         return [
-            'labels' => $labels,
+            'labels'   => $labels,
             'datasets' => [
                 [
-                    'label' => 'Pasien Walk-in',
-                    'data' => $pasienData,
-                    'borderColor' => 'rgba(75, 192, 192, 1)',
+                    'label'           => 'Pasien Walk-in',
+                    'data'            => $pasienData,
+                    'borderColor'     => 'rgba(75, 192, 192, 1)',
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                 ],
                 [
-                    'label' => 'User (Role Pasien)',
-                    'data' => $userPasienData,
-                    'borderColor' => 'rgba(255, 159, 64, 1)',
+                    'label'           => 'User (Role Pasien)',
+                    'data'            => $userPasienData,
+                    'borderColor'     => 'rgba(255, 159, 64, 1)',
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                 ],
                 [
-                    'label' => 'All Pasien',
-                    'data' => $allData,
-                    'borderColor' => 'rgba(54, 162, 235, 1)',
+                    'label'           => 'All Pasien',
+                    'data'            => $allData,
+                    'borderColor'     => 'rgba(54, 162, 235, 1)',
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                 ],
             ],
         ];
     }
-
-    // Batasi widget hanya untuk pemilik
-    public static function getWidgets(): array
-    {
-        // Ambil user yang sedang login
-        $user = auth()->user();
-
-        // Hanya tampilkan jika role admin, petugas, atau pemilik
-        if ($user && in_array($user->role?->name, ['admin', 'petugas', 'pemilik'])) {
-            return [
-                self::class,
-            ];
-        }
-
-        return [];
-    }
-
 }
