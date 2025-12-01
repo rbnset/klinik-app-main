@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pasiens', function (Blueprint $table) {
-            $table->id(); 
+            $table->id();
             $table->string('nik', 16)->unique()->nullable(); // Nomor Induk Kependudukan
             $table->string('nama_pasien', 25)->nullable();
             $table->string('tempat_lahir', 25)->nullable();
             $table->date('tanggal_lahir')->nullable();
-            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan']);
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
             $table->enum('golongan_darah', ['A', 'B', 'AB', 'O'])->nullable();
             $table->enum('agama', [
                 'Islam',
