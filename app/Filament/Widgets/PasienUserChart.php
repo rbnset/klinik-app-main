@@ -10,10 +10,10 @@ class PasienUserChart extends ChartWidget
 {
     protected ?string $heading = 'Statistik Pasien per Bulan';
 
-    /**
-     * Hanya role tertentu yang boleh melihat widget ini.
-     * Pasien TIDAK boleh melihat grafik.
-     */
+    // Setelah DashboardChart, dan 1 kolom juga
+    protected static ?int $sort = 20;
+    protected int | string | array $columnSpan = 1;
+
     public static function canView(): bool
     {
         $user = auth()->user();
@@ -40,12 +40,11 @@ class PasienUserChart extends ChartWidget
 
     protected function getData(): array
     {
-        $labels          = [];
-        $pasienData      = [];
-        $userPasienData  = [];
-        $allData         = [];
+        $labels         = [];
+        $pasienData     = [];
+        $userPasienData = [];
+        $allData        = [];
 
-        // Ambil 6 bulan terakhir (termasuk bulan ini)
         $months = collect(range(0, 5))
             ->map(fn($i) => now()->subMonths($i))
             ->reverse();
@@ -53,21 +52,18 @@ class PasienUserChart extends ChartWidget
         foreach ($months as $month) {
             $labels[] = $month->format('M Y');
 
-            // Jumlah pasien walk-in bulan ini
             $pasienCount = Pasien::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
-                ->whereNull('user_id') // pasien walk-in tidak terhubung ke user
+                ->whereNull('user_id')
                 ->count();
             $pasienData[] = $pasienCount;
 
-            // Jumlah user dengan role 'pasien' bulan ini
             $userCount = User::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
                 ->whereHas('role', fn($q) => $q->where('name', 'pasien'))
                 ->count();
             $userPasienData[] = $userCount;
 
-            // Jumlah total: walk-in + user pasien
             $allData[] = $pasienCount + $userCount;
         }
 

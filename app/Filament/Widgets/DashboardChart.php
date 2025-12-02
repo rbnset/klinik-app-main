@@ -10,10 +10,10 @@ class DashboardChart extends ChartWidget
 {
     protected ?string $heading = 'Jumlah Pendaftar & Pemeriksaan per Bulan';
 
-    /**
-     * Hanya role selain pasien yang bisa melihat widget ini.
-     * (Sesuaikan daftar role kalau perlu.)
-     */
+    // Urutan setelah stats, dan ambil 1 dari 2 kolom → setengah lebar
+    protected static ?int $sort = 10;
+    protected int | string | array $columnSpan = 1;
+
     public static function canView(): bool
     {
         $role = auth()->user()?->role?->name;
@@ -34,11 +34,10 @@ class DashboardChart extends ChartWidget
 
     protected function getData(): array
     {
-        $labels           = [];
-        $pendaftaranData  = [];
-        $pemeriksaanData  = [];
+        $labels          = [];
+        $pendaftaranData = [];
+        $pemeriksaanData = [];
 
-        // Ambil 6 bulan terakhir
         $months = collect(range(0, 5))
             ->map(fn($i) => now()->subMonths($i))
             ->reverse();
@@ -46,17 +45,13 @@ class DashboardChart extends ChartWidget
         foreach ($months as $month) {
             $labels[] = $month->format('M Y');
 
-            // Jumlah pendaftaran bulan ini
-            $pendaftaranCount = Pendaftaran::whereYear('created_at', $month->year)
+            $pendaftaranData[] = Pendaftaran::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
                 ->count();
-            $pendaftaranData[] = $pendaftaranCount;
 
-            // Jumlah pemeriksaan bulan ini
-            $pemeriksaanCount = Pemeriksaan::whereYear('tanggal_periksa', $month->year)
+            $pemeriksaanData[] = Pemeriksaan::whereYear('tanggal_periksa', $month->year)
                 ->whereMonth('tanggal_periksa', $month->month)
                 ->count();
-            $pemeriksaanData[] = $pemeriksaanCount;
         }
 
         return [

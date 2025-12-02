@@ -8,6 +8,7 @@ use App\Policies\PasienPolicy;
 use App\Policies\PendaftaranPolicy;
 use App\Policies\DashboardPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Filament\Pages\Dashboard;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -20,7 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         Pasien::class => PasienPolicy::class,
         Pendaftaran::class => PendaftaranPolicy::class,
         \App\Filament\Pages\Dashboard::class => \App\Policies\DashboardPolicy::class,
-
+        Dashboard::class => DashboardPolicy::class,
     ];
 
     /**
