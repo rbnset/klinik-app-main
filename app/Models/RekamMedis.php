@@ -18,8 +18,11 @@ class RekamMedis extends Model
         'pemeriksaan_id',
         'diagnosa_id',
         'tanggal',
+
+        // tambahan riwayat
         'riwayat_alergi',
         'riwayat_penyakit',
+
         'rencana_terapi',
         'catatan',
     ];
@@ -48,18 +51,15 @@ class RekamMedis extends Model
         return $this->belongsTo(Pasien::class);
     }
 
-    // ==============================================
-    //   Relasi ke Pendaftaran melalui Pemeriksaan
-    // ==============================================
     public function pendaftaran(): HasOneThrough
     {
         return $this->hasOneThrough(
-            Pendaftaran::class,     // Model tujuan
-            Pemeriksaan::class,     // Model perantara
-            'id',                   // Foreign key di tabel pemeriksaan
-            'id',                   // Foreign key di tabel pendaftaran
-            'pemeriksaan_id',       // Local key rekam_medis
-            'pendaftaran_id'        // Local key pemeriksaan
+            Pendaftaran::class,
+            Pemeriksaan::class,
+            'id',
+            'id',
+            'pemeriksaan_id',
+            'pendaftaran_id'
         );
     }
 }

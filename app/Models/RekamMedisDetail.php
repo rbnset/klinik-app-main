@@ -13,11 +13,12 @@ class RekamMedisDetail extends Model
 
     protected $fillable = [
         'rekam_medis_id',
-        'tipe',
+        'tipe',           // ← jenis (obat / tindakan / layanan / dll)
         'deskripsi',
         'qty',
         'satuan',
-        
+        'harga_satuan',
+        'subtotal',
     ];
 
     protected static function booted(): void
@@ -34,7 +35,6 @@ class RekamMedisDetail extends Model
         return $this->belongsTo(RekamMedis::class);
     }
 
-    // hanya relevan ketika tipe = 'tindakan'
     public function detailTindakans(): HasMany
     {
         return $this->hasMany(DetailTindakan::class, 'rekam_medis_detail_id');
