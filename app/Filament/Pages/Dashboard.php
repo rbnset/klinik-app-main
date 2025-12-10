@@ -10,6 +10,12 @@ use Filament\Pages\Dashboard as BaseDashboard;
 
 class Dashboard extends BaseDashboard
 {
+    // 🔥 UBAH LABEL NAVIGASI DI SIDEBAR
+    protected static ?string $navigationLabel = 'Beranda';
+
+    // Opsional → ubah judul halaman di header
+    protected static ?string $title = 'Beranda';
+
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
 
     /**
@@ -22,24 +28,19 @@ class Dashboard extends BaseDashboard
     }
 
     /**
-     * URUTAN widget di dashboard.
-     * 1) StatsOverview (card-card)
-     * 2) Grafik 1
-     * 3) Grafik 2
+     * Urutan widget dashboard.
      */
     public function getWidgets(): array
     {
         return [
-            DashboardStatsOverview::class, // baris pertama, full
-            DashboardChart::class,         // baris kedua, kiri
-            PasienUserChart::class,        // baris kedua, kanan
+            DashboardStatsOverview::class,
+            DashboardChart::class,
+            PasienUserChart::class,
         ];
     }
 
     /**
-     * Grid kolom dashboard:
-     * - HP: 1 kolom
-     * - md ke atas: 2 kolom
+     * Grid kolom dashboard.
      */
     public function getColumns(): array|int
     {
