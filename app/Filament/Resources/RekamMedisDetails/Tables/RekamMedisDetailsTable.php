@@ -52,11 +52,7 @@ class RekamMedisDetailsTable
                     ->label('Sat.')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('harga_satuan')
-                    ->label('Harga')
-                    ->money('IDR', true)
-                    ->alignRight()
-                    ->sortable(),
+               
 
                 TextColumn::make('subtotal')
                     ->money('IDR', true)

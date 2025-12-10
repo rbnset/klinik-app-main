@@ -31,8 +31,7 @@ class RekamMedisDetailSeeder extends Seeder
                     'deskripsi'      => 'Paracetamol 500 mg diminum 3x sehari setelah makan.',
                     'qty'            => 10,
                     'satuan'         => 'tablet',
-                    'harga_satuan'   => 1500,
-                    'subtotal'       => 10 * 1500,
+                    
                 ]);
 
                 // Suntik
@@ -42,8 +41,6 @@ class RekamMedisDetailSeeder extends Seeder
                     'deskripsi'      => 'Vitamin B Kompleks injeksi sekali pemberian.',
                     'qty'            => 1,
                     'satuan'         => 'ampul',
-                    'harga_satuan'   => 25000,
-                    'subtotal'       => 1 * 25000,
                 ]);
 
                 // Infus
@@ -52,9 +49,7 @@ class RekamMedisDetailSeeder extends Seeder
                     'tipe'           => 'infus',
                     'deskripsi'      => 'Infus NaCl 0.9% untuk rehidrasi.',
                     'qty'            => 1,
-                    'satuan'         => 'botol',
-                    'harga_satuan'   => 35000,
-                    'subtotal'       => 1 * 35000,
+                     'satuan'         => 'botol',
                 ]);
             }
 
@@ -69,8 +64,6 @@ class RekamMedisDetailSeeder extends Seeder
                     'deskripsi'      => 'Asam folat 400 mcg diminum 1x sehari.',
                     'qty'            => 30,
                     'satuan'         => 'tablet',
-                    'harga_satuan'   => 1000,
-                    'subtotal'       => 30 * 1000,
                 ]);
 
                 RekamMedisDetail::create([
@@ -79,8 +72,6 @@ class RekamMedisDetailSeeder extends Seeder
                     'deskripsi'      => 'Imunisasi TT sesuai jadwal kehamilan.',
                     'qty'            => 1,
                     'satuan'         => 'ampul',
-                    'harga_satuan'   => 50000,
-                    'subtotal'       => 1 * 50000,
                 ]);
 
                 RekamMedisDetail::create([
@@ -89,8 +80,7 @@ class RekamMedisDetailSeeder extends Seeder
                     'deskripsi'      => 'Infus D5 untuk menjaga hidrasi dan kebutuhan energi.',
                     'qty'            => 1,
                     'satuan'         => 'botol',
-                    'harga_satuan'   => 30000,
-                    'subtotal'       => 1 * 30000,
+                    
                 ]);
             }
         }

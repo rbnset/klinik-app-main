@@ -23,6 +23,7 @@ class PasiensTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->heading('Data Pasien')
             ->columns([
                 TextColumn::make('nik')
                     ->label('NIK')
@@ -130,7 +131,7 @@ class PasiensTable
 
                 // ========= Tombol "Kartu Pasien" =========
                 Action::make('kartu')
-                    ->label('Kartu Pasien')
+                    ->label('Rekam Medis')
                     ->icon('heroicon-o-identification')
                     ->visible(function () {
                         $user = Auth::user();

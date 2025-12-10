@@ -26,6 +26,10 @@ class PasienResource extends Resource
 {
     protected static ?string $model = Pasien::class;
 
+    protected static ?string $navigationLabel = 'Pasien';
+
+    protected static ?string $modelLabel = 'Pasien';          // singular
+    protected static ?string $pluralModelLabel = 'Pasien';    // plural
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 

@@ -17,7 +17,6 @@ return new class extends Migration
                 ->constrained('rekam_medis_details')->cascadeOnDelete();
             $table->foreignId('tindakan_id')->constrained('tindakans');
             $table->decimal('qty', 10, 2)->default(1);
-            $table->decimal('tarif', 12, 2);
             $table->decimal('subtotal', 12, 2);
             $table->timestamps();
             $table->softDeletes();

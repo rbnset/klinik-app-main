@@ -6,6 +6,7 @@ use App\Filament\Resources\Pendaftarans\PendaftaranResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Support\Facades\Auth;
+use Filament\Tables\Table;
 
 class ListPendaftarans extends ListRecords
 {
@@ -20,9 +21,15 @@ class ListPendaftarans extends ListRecords
 
                     $role = Auth::user()->role?->name;
 
-                    // IZINKAN: admin, petugas, pasien
                     return in_array($role, ['admin', 'petugas', 'pasien']);
                 }),
         ];
+    }
+
+    // FIX TABEL SUPAYA TAMPIL TANPA PAGINATION
+    public function table(Table $table): Table
+    {
+        return parent::table($table)
+            ->paginated(false);
     }
 }

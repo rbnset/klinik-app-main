@@ -18,6 +18,10 @@ class RekamMedisResource extends Resource
 {
     protected static ?string $model = RekamMedis::class;
 
+    protected static ?string $modelLabel = 'Rekam Medis';
+
+    protected static ?string $pluralModelLabel = 'Rekam Medis';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

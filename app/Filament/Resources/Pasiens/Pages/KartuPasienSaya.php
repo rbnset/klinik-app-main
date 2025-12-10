@@ -12,7 +12,10 @@ class KartuPasienSaya extends Page
 {
     protected static string $resource = PasienResource::class;
 
+    protected static ?string $title = 'Rekam Medis';
+
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-identification';
+
 
     public ?Pasien $pasien = null;
 

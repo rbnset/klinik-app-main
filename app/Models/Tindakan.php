@@ -14,7 +14,6 @@ class Tindakan extends Model
     protected $fillable = [
         'nama_tindakan',
         'deskripsi',
-        'tarif',
         'role', // 'dokter' atau 'bidan'
     ];
 

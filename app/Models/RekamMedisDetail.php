@@ -17,8 +17,7 @@ class RekamMedisDetail extends Model
         'deskripsi',
         'qty',
         'satuan',
-        'harga_satuan',
-        'subtotal',
+        
     ];
 
     protected static function booted(): void

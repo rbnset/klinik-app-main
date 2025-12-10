@@ -18,6 +18,12 @@ class PendaftaranResource extends Resource
 {
     protected static ?string $model = Pendaftaran::class;
 
+    protected static ?string $navigationLabel = 'Pendaftaran';
+
+    protected static ?string $modelLabel = 'Pendaftaran';
+
+    protected static ?string $pluralModelLabel = 'Pendaftaran';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function form(Schema $schema): Schema

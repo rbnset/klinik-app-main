@@ -34,10 +34,6 @@ class TindakansTable
                 TextColumn::make('deskripsi')
                     ->searchable()
                     ->sortable(),
-
-                TextColumn::make('tarif')
-                    ->money('IDR', true)
-                    ->sortable(),
             ])
             ->filters([
                 //

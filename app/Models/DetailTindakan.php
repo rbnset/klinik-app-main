@@ -14,7 +14,6 @@ class DetailTindakan extends Model
         'rekam_medis_detail_id',
         'tindakan_id',
         'qty',
-        'tarif',
         'subtotal',
     ];
 

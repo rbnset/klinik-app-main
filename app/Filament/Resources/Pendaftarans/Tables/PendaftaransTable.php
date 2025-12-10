@@ -33,6 +33,7 @@ class PendaftaransTable
                     $query->where('poli_tujuan', 'Poli Kandungan');
                 }
             })
+            ->paginated(false) // tampilkan semua data tanpa pagination
             ->columns([
                 TextColumn::make('pasien.nama_pasien')->label('Nama Pasien')->searchable()->sortable(),
                 TextColumn::make('poli_tujuan')->label('Poli Tujuan')->badge()->sortable(),
@@ -40,10 +41,11 @@ class PendaftaransTable
                 TextColumn::make('jenis_pelayanan')->label('Jenis Pelayanan')->badge()->sortable(),
                 TextColumn::make('keluhan')->label('Keluhan')->limit(30)->wrap(),
                 BadgeColumn::make('status')->label('Status')->colors([
-                    'primary' => 'menunggu',
-                    'warning' => 'diproses',
-                    'success' => 'selesai',
-                    'danger'  => 'batal',
+                    // pastikan nilai status cocok dengan database (key = nilai status, value = warna)
+                    'menunggu' => 'primary',
+                    'diproses' => 'warning',
+                    'selesai' => 'success',
+                    'batal'   => 'danger',
                 ])->sortable(),
             ])
             ->filters([

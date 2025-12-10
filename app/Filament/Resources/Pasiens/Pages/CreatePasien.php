@@ -9,6 +9,13 @@ class CreatePasien extends CreateRecord
 {
     protected static string $resource = PasienResource::class;
 
+    protected static ?string $title = 'Input Pasien';
+
+    public function getBreadcrumb(): string
+    {
+        return 'Input Pasien';
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // otomatis beri role "pasien"

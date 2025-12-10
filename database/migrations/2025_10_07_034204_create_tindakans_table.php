@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id(); 
             $table->string('nama_tindakan', 50);
             $table->text('deskripsi')->nullable();
-            $table->decimal('tarif', 12, 2)->default(0);
             $table->enum('role', ['dokter', 'bidan'])->default('dokter'); // kolom role
             $table->timestamps();
             $table->softDeletes();

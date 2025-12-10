@@ -18,8 +18,6 @@ return new class extends Migration
             $table->text('deskripsi');
             $table->decimal('qty', 10, 2)->default(1);
             $table->string('satuan', 30)->nullable();
-            $table->decimal('harga_satuan', 12, 2)->default(0);
-            $table->decimal('subtotal', 12, 2)->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
