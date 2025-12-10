@@ -12,10 +12,6 @@ class Dashboard extends BaseDashboard
 {
     protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
 
-    protected static ?string $navigationLabel = 'Dashboard';
-
-    protected static ?string $title = 'Dashboard';
-
     /**
      * Dashboard muncul untuk semua user yang login,
      * tapi isi widget diatur di masing-masing widget (canView).

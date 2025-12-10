@@ -23,4 +23,15 @@ class CreatePasien extends CreateRecord
 
         return $data;
     }
+
+    // CreateResourcePage.php
+    protected function getFormActions(): array
+    {
+        return [
+            \Filament\Actions\Action::make('create')
+                ->label('Simpan'),
+            \Filament\Actions\Action::make('cancel')
+                ->label('Batal'),
+        ];
+    }
 }

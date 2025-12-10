@@ -3,11 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KartuPasienSayaController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TotalPendaftaranController; 
+use App\Http\Controllers\TotalPendaftaranController;
 use App\Http\Controllers\TotalBidanController;
 use App\Http\Controllers\TotalDokterController;
 use App\Http\Controllers\TotalPasienBidanController;
 use App\Http\Controllers\TotalPasienDokterController;
+use Illuminate\Support\Facades\Lang;
 
 // LANDING PAGE
 Route::get('/', function () {
