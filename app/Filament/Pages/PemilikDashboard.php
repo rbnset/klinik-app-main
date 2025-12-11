@@ -24,7 +24,7 @@ class PemilikDashboard extends Page
     /**
      * Ikon — tipe dari Filament: BackedEnum|string|null
      */
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-home';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-document-text';
 
     /**
      * Group navigasi — tipe dari Filament: UnitEnum|string|null
