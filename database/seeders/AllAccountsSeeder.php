@@ -35,25 +35,25 @@ class AllAccountsSeeder extends Seeder
          * Password default: "password"
          */
         $users = [
-            ['name' => 'Admin Klinik Utama', 'email' => 'admin@klinik.id', 'role' => 'admin'],
+            ['name' => 'Admin Pmb', 'email' => 'admin@pmb', 'role' => 'admin'],
 
             // Dokter
-            ['name' => 'dr. Aditya Pratama', 'email' => 'aditya.pratama@klinik.id', 'role' => 'dokter'],
+            ['name' => 'dr. Lupita Sari', 'email' => 'dokterlupita@pmb', 'role' => 'dokter'],
             ['name' => 'dr. Wulandari Putri', 'email' => 'wulandari.putri@klinik.id', 'role' => 'dokter'],
 
             // Bidan
-            ['name' => 'Bidan Rina Ayu', 'email' => 'rina.ayu@klinik.id', 'role' => 'bidan'],
-            ['name' => 'Bidan Siti Rahma', 'email' => 'siti.rahma@klinik.id', 'role' => 'bidan'],
+            ['name' => 'Puji Susanti, A.Md.Keb', 'email' => 'bidanpuji@pmb', 'role' => 'bidan'],
+            ['name' => 'Wahyu Triashi, A.Md.Keb', 'email' => 'bidanwahyu@pmb', 'role' => 'bidan'],
 
             // Petugas administrasi
-            ['name' => 'Dewi Lestari', 'email' => 'dewi.lestari@klinik.id', 'role' => 'petugas'],
-            ['name' => 'Fajar Ramadhan', 'email' => 'fajar.ramadhan@klinik.id', 'role' => 'petugas'],
+            ['name' => 'Puji Susanti', 'email' => 'pujisusanti@pmb', 'role' => 'petugas'],
+            ['name' => 'Wahyu Triashi', 'email' => 'wahyutriashi@pmb', 'role' => 'petugas'],
 
             // Pasien
             ['name' => 'Anisa Ningrum', 'email' => 'anisa.ningrum@gmail.com', 'role' => 'pasien'],
 
             // Pemilik klinik
-            ['name' => 'H. Budi Santoso', 'email' => 'pemilik@klinik.id', 'role' => 'pemilik'],
+            ['name' => 'Puji Susanti', 'email' => 'pemilik@pmb', 'role' => 'pemilik'],
         ];
 
         /**
