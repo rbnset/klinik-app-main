@@ -61,24 +61,7 @@ class DetailTindakanForm
                 ->numeric()
                 ->default(1)
                 ->required()
-                ->reactive()
-                ->afterStateUpdated(function ($state, callable $set, $get) {
-                    $tarif = $get('tarif') ?? 0;
-                    $set('subtotal', $tarif * $state);
-                }),
-
-            // Tarif otomatis
-            TextInput::make('tarif')
-                ->label('Tarif')
-                ->disabled()
-                ->numeric()
-                ->required(),
-
-            // Subtotal otomatis
-            TextInput::make('subtotal')
-                ->label('Subtotal')
-                ->disabled()
-                ->numeric(),
+                ->reactive(),
         ]);
     }
 }

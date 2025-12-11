@@ -88,20 +88,6 @@ class RekamMedisDetailForm
                         $set('subtotal', (float)$get('qty') * (float)$get('harga_satuan'));
                     }),
 
-                TextInput::make('harga_satuan')
-                    ->numeric()
-                    ->prefix('Rp')
-                    ->default(0)
-                    ->reactive()
-                    ->afterStateUpdated(function (callable $get, callable $set) {
-                        $set('subtotal', (float)$get('qty') * (float)$get('harga_satuan'));
-                    }),
-
-                TextInput::make('subtotal')
-                    ->numeric()
-                    ->prefix('Rp')
-                    ->readOnly(),
-
                 TextInput::make('id')
                     ->label('Detail ID')
                     ->disabled()
