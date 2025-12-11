@@ -17,7 +17,7 @@ class PemilikDashboard extends Page
     /**
      * Label navigasi
      */
-    protected static ?string $navigationLabel = 'Dashboard Pemilik';
+    protected static ?string $navigationLabel = 'Laporan Pasien';
 
     /**
      * Ikon — tipe dari Filament: BackedEnum|string|null
@@ -27,7 +27,7 @@ class PemilikDashboard extends Page
     /**
      * Group navigasi — tipe dari Filament: UnitEnum|string|null
      */
-    protected static UnitEnum|string|null $navigationGroup = 'Dashboard';
+    protected static UnitEnum|string|null $navigationGroup = 'Laporan';
 
     /**
      * Urutan menu
