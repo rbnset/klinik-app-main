@@ -17,18 +17,7 @@ class RekamMedisDetail extends Model
         'deskripsi',
         'qty',
         'satuan',
-        'harga_satuan',
-        'subtotal',
     ];
-
-    protected static function booted(): void
-    {
-        static::saving(function (self $m) {
-            if (is_null($m->subtotal)) {
-                $m->subtotal = (float) $m->qty * (float) $m->harga_satuan;
-            }
-        });
-    }
 
     public function rekamMedis(): BelongsTo
     {

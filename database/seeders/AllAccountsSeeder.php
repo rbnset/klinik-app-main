@@ -16,7 +16,9 @@ class AllAccountsSeeder extends Seeder
     {
         $now = now();
 
-        // 1) Roles
+        /**
+         * 1. Roles
+         */
         DB::table('roles')->upsert([
             ['name' => 'admin',   'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
             ['name' => 'dokter',  'guard_name' => 'web', 'created_at' => $now, 'updated_at' => $now],
@@ -28,19 +30,35 @@ class AllAccountsSeeder extends Seeder
 
         $roleIds = DB::table('roles')->pluck('id', 'name');
 
-        // 2) Users (password default: "password")
+        /**
+         * 2. Users dengan nama nyata Indonesia
+         * Password default: "password"
+         */
         $users = [
-            ['name' => 'Admin Utama',   'email' => 'admin@demo.test',   'role' => 'admin'],
-            ['name' => 'Dr. Andi',      'email' => 'dokter1@demo.test', 'role' => 'dokter'],
-            ['name' => 'Dr. Budi',      'email' => 'dokter2@demo.test', 'role' => 'dokter'],
-            ['name' => 'Bidan Sari',    'email' => 'bidan1@demo.test',  'role' => 'bidan'],
-            ['name' => 'Bidan Rina',    'email' => 'bidan2@demo.test',  'role' => 'bidan'],
-            ['name' => 'Petugas', 'email' => 'petugas1@demo.test', 'role' => 'petugas'],
-            ['name' => 'Petugas', 'email' => 'petugas2@demo.test', 'role' => 'petugas'],
-            ['name' => 'Pasien Demo',   'email' => 'pasien1@demo.test', 'role' => 'pasien'],
-            ['name' => 'Pemilik Klinik', 'email' => 'pemilik@demo.test', 'role' => 'pemilik'],
+            ['name' => 'Admin Klinik Utama', 'email' => 'admin@klinik.id', 'role' => 'admin'],
+
+            // Dokter
+            ['name' => 'dr. Aditya Pratama', 'email' => 'aditya.pratama@klinik.id', 'role' => 'dokter'],
+            ['name' => 'dr. Wulandari Putri', 'email' => 'wulandari.putri@klinik.id', 'role' => 'dokter'],
+
+            // Bidan
+            ['name' => 'Bidan Rina Ayu', 'email' => 'rina.ayu@klinik.id', 'role' => 'bidan'],
+            ['name' => 'Bidan Siti Rahma', 'email' => 'siti.rahma@klinik.id', 'role' => 'bidan'],
+
+            // Petugas administrasi
+            ['name' => 'Dewi Lestari', 'email' => 'dewi.lestari@klinik.id', 'role' => 'petugas'],
+            ['name' => 'Fajar Ramadhan', 'email' => 'fajar.ramadhan@klinik.id', 'role' => 'petugas'],
+
+            // Pasien
+            ['name' => 'Anisa Ningrum', 'email' => 'anisa.ningrum@gmail.com', 'role' => 'pasien'],
+
+            // Pemilik klinik
+            ['name' => 'H. Budi Santoso', 'email' => 'pemilik@klinik.id', 'role' => 'pemilik'],
         ];
 
+        /**
+         * Simpan User + buat data Pasien jika role pasien
+         */
         foreach ($users as $u) {
             $user = User::updateOrCreate(
                 ['email' => $u['email']],
@@ -53,9 +71,12 @@ class AllAccountsSeeder extends Seeder
                 ]
             );
 
-            // 3) Buat/tautkan PASIEN untuk user role "pasien"
+            /**
+             * 3. Data Pasien (hanya untuk user role "pasien")
+             */
             if ($u['role'] === 'pasien') {
-                // buat NIK unik agar tidak bentrok dengan unique()
+
+                // Buat NIK unik
                 $nik = '3201' . str_pad((string) $user->id, 12, '0', STR_PAD_LEFT);
 
                 Pasien::updateOrCreate(
@@ -63,17 +84,17 @@ class AllAccountsSeeder extends Seeder
                     [
                         'nik'                      => $nik,
                         'nama_pasien'              => $user->name,
-                        'tempat_lahir'             => 'Jakarta',
-                        'tanggal_lahir'            => '1990-01-01',
-                        'jenis_kelamin'            => 'Laki-laki',
-                        'golongan_darah'           => 'O',
+                        'tempat_lahir'             => 'Bandung',
+                        'tanggal_lahir'            => '1997-05-14',
+                        'jenis_kelamin'            => 'Perempuan',
+                        'golongan_darah'           => 'A',
                         'agama'                    => 'Islam',
                         'status_perkawinan'        => 'Belum Kawin',
-                        'alamat'                   => 'Jl. Melati No. 10, Jakarta',
-                        'no_telp'                  => '081234567890',
-                        'pekerjaan'                => 'Karyawan Swasta',
-                        'nama_penanggung_jawab'    => 'Penanggung Jawab Demo',
-                        'no_telp_penanggung_jawab' => '081111111111',
+                        'alamat'                   => 'Jl. Anggrek No. 23, Bandung',
+                        'no_telp'                  => '082112345678',
+                        'pekerjaan'                => 'Guru',
+                        'nama_penanggung_jawab'    => 'Siti Nurhayati',
+                        'no_telp_penanggung_jawab' => '081323456789',
                     ]
                 );
             }

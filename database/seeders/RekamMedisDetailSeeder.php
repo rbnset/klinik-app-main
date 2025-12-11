@@ -10,52 +10,53 @@ class RekamMedisDetailSeeder extends Seeder
 {
     public function run(): void
     {
-        if (RekamMedis::count() == 0) {
-            $this->command->warn("⚠ Tabel RekamMedis masih kosong. Jalankan RekamMedisSeeder terlebih dahulu.");
+        if (RekamMedis::count() === 0) {
+            $this->command->warn("⚠ Tabel rekam_medis masih kosong. Jalankan RekamMedisSeeder terlebih dahulu.");
             return;
         }
 
-        foreach (RekamMedis::with('pendaftaran')->get() as $rekamMedis) {
+        $rekamMedisList = RekamMedis::with(['pendaftaran'])->get();
 
-            $poli = $rekamMedis->pendaftaran->poli_tujuan;
+        foreach ($rekamMedisList as $rekamMedis) {
+            $poli = $rekamMedis->pendaftaran?->poli_tujuan;
 
-            /** ============================
+            if (! $poli) {
+                continue;
+            }
+
+            /** ====================================================
              *  POLI UMUM → DOKTER
-             * ============================ */
+             * ==================================================== */
             if ($poli === 'Poli Umum') {
 
-                // Obat
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'obat',
                     'deskripsi'      => 'Paracetamol 500 mg diminum 3x sehari setelah makan.',
                     'qty'            => 10,
                     'satuan'         => 'tablet',
-                    
                 ]);
 
-                // Suntik
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'suntik',
-                    'deskripsi'      => 'Vitamin B Kompleks injeksi sekali pemberian.',
+                    'deskripsi'      => 'Injeksi Vitamin B Kompleks sekali pemberian.',
                     'qty'            => 1,
                     'satuan'         => 'ampul',
                 ]);
 
-                // Infus
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'infus',
                     'deskripsi'      => 'Infus NaCl 0.9% untuk rehidrasi.',
                     'qty'            => 1,
-                     'satuan'         => 'botol',
+                    'satuan'         => 'botol',
                 ]);
             }
 
-            /** ============================
+            /** ====================================================
              *  POLI KANDUNGAN → BIDAN
-             * ============================ */
+             * ==================================================== */
             if ($poli === 'Poli Kandungan') {
 
                 RekamMedisDetail::create([
@@ -77,10 +78,9 @@ class RekamMedisDetailSeeder extends Seeder
                 RekamMedisDetail::create([
                     'rekam_medis_id' => $rekamMedis->id,
                     'tipe'           => 'infus',
-                    'deskripsi'      => 'Infus D5 untuk menjaga hidrasi dan kebutuhan energi.',
+                    'deskripsi'      => 'Infus D5 untuk menjaga hidrasi dan energi ibu hamil.',
                     'qty'            => 1,
                     'satuan'         => 'botol',
-                    
                 ]);
             }
         }
