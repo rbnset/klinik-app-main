@@ -14,6 +14,8 @@ class PemilikDashboard extends Page
      */
     protected string $view = 'filament.pages.pemilik-dashboard';
 
+    protected static ?string $title = 'Laporan Pasien';
+
     /**
      * Label navigasi
      */
